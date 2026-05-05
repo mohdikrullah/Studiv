@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import '../../providers/task_provider.dart';
+import '../../providers/schedule_provider.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -41,52 +44,60 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(height: 32),
               
               // Progress Bar Card (Neumorphic-ish / Modern)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: AppTheme.surfaceColor,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: AppTheme.softShadow,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Consumer<TaskProvider>(
+                builder: (context, taskProvider, child) {
+                  final completed = taskProvider.completedTasksCount;
+                  final total = taskProvider.totalTasksCount;
+                  final progress = total == 0 ? 0.0 : completed / total;
+
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppTheme.surfaceColor,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: AppTheme.softShadow,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Weekly Tasks',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Weekly Tasks',
+                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                            Text(
+                              '$completed/$total Done',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppTheme.primaryColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ],
                         ),
+                        const SizedBox(height: 16),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: LinearProgressIndicator(
+                            value: progress,
+                            minHeight: 12,
+                            backgroundColor: AppTheme.slateLight.withValues(alpha: 0.2),
+                            valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
                         Text(
-                          '8/10 Done',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppTheme.primaryColor,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          progress == 1.0 ? 'All caught up! Great job.' : 'You are almost there! Keep it up.',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 12),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: LinearProgressIndicator(
-                        value: 0.8, // 80% progress
-                        minHeight: 12,
-                        backgroundColor: AppTheme.slateLight.withValues(alpha: 0.2),
-                        valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'You are almost there! Keep it up.',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 12),
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
               
               const SizedBox(height: 32),
@@ -100,9 +111,21 @@ class DashboardScreen extends StatelessWidget {
                     ),
               ),
               const SizedBox(height: 16),
-              _buildUpcomingClassCard(context, 'Data Structures', '10:00 AM - Room 402'),
-              const SizedBox(height: 12),
-              _buildUpcomingClassCard(context, 'Software Engineering', '13:00 PM - Lab A'),
+              Consumer<ScheduleProvider>(
+                builder: (context, scheduleProvider, child) {
+                  if (scheduleProvider.schedules.isEmpty) {
+                    return const Text("No classes today!");
+                  }
+                  return Column(
+                    children: scheduleProvider.schedules.map((schedule) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: _buildUpcomingClassCard(context, schedule.subject, '${schedule.time} - ${schedule.room}'),
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
             ],
           ),
         ),
