@@ -14,15 +14,15 @@ class ScheduleProvider with ChangeNotifier {
     if (_schedules.isEmpty) {
       addSchedule(ScheduleModel(
         id: 's1',
-        subject: 'Data Structures',
-        time: '10:00 AM',
-        room: 'Room 402',
+        subject: 'Struktur Data',
+        time: '10:00',
+        room: 'Ruang 402',
       ));
       addSchedule(ScheduleModel(
         id: 's2',
-        subject: 'Software Engineering',
-        time: '13:00 PM',
-        room: 'Lab A',
+        subject: 'Rekayasa Perangkat Lunak',
+        time: '13:00',
+        room: 'Lab Komputer A',
       ));
     }
     notifyListeners();

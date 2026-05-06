@@ -9,7 +9,7 @@ class TaskProvider with ChangeNotifier {
   List<TaskModel> get tasks => _tasks;
   bool get isLoading => _isLoading;
 
-  int get completedTasksCount => _tasks.where((t) => t.status == 'Done').length;
+  int get completedTasksCount => _tasks.where((t) => t.status == 'Selesai').length;
   int get totalTasksCount => _tasks.length;
 
   // Simulate fetching tasks for now, since we haven't configured google-services.json
@@ -23,9 +23,9 @@ class TaskProvider with ChangeNotifier {
 
     // Dummy data until Firestore is connected
     _tasks = [
-      TaskModel(id: '1', title: 'Math Assignment', status: 'Done'),
-      TaskModel(id: '2', title: 'Read Chapter 4', status: 'To-Do'),
-      TaskModel(id: '3', title: 'Project Proposal', status: 'In Progress'),
+      TaskModel(id: '1', title: 'Tugas Matematika', status: 'Selesai'),
+      TaskModel(id: '2', title: 'Baca Bab 4', status: 'Belum Mulai'),
+      TaskModel(id: '3', title: 'Proposal Proyek', status: 'Sedang Dikerjakan'),
     ];
 
     _isLoading = false;
