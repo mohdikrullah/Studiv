@@ -33,12 +33,12 @@ class DashboardScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Hello, Student 👋',
+                'Halo, Mahasiswa 👋',
                 style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 28),
               ),
               const SizedBox(height: 8),
               Text(
-                'Here is your academic progress this week.',
+                'Ini adalah progres akademikmu minggu ini.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 32),
@@ -65,13 +65,13 @@ class DashboardScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Weekly Tasks',
+                              'Tugas Mingguan',
                               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
                             ),
                             Text(
-                              '$completed/$total Done',
+                              '$completed/$total Selesai',
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     color: AppTheme.primaryColor,
                                     fontWeight: FontWeight.bold,
@@ -91,7 +91,7 @@ class DashboardScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          progress == 1.0 ? 'All caught up! Great job.' : 'You are almost there! Keep it up.',
+                          progress == 1.0 ? 'Semua tugas selesai! Kerja bagus.' : 'Tinggal sedikit lagi! Semangat.',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 12),
                         ),
                       ],
@@ -104,7 +104,7 @@ class DashboardScreen extends StatelessWidget {
               
               // Placeholder for more content (e.g. Next Class)
               Text(
-                'Upcoming Classes',
+                'Jadwal Kuliah Berikutnya',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -114,7 +114,7 @@ class DashboardScreen extends StatelessWidget {
               Consumer<ScheduleProvider>(
                 builder: (context, scheduleProvider, child) {
                   if (scheduleProvider.schedules.isEmpty) {
-                    return const Text("No classes today!");
+                    return const Text("Tidak ada jadwal kuliah hari ini!");
                   }
                   return Column(
                     children: scheduleProvider.schedules.map((schedule) {

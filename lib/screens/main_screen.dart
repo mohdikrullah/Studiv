@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import '../theme/app_theme.dart';
 import 'dashboard/dashboard_screen.dart';
+import 'profile/profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -17,7 +18,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const DashboardScreen(),
     const Center(child: Text("Calendar Screen (Coming Soon)")),
-    const Center(child: Text("Profile Screen (Coming Soon)")),
+    const ProfileScreen(),
   ];
 
   @override
