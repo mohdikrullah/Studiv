@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../../theme/app_theme.dart';
+import '../../providers/grade_provider.dart';
+import 'semester_detail_screen.dart';
 
 class AcademicHistoryScreen extends StatelessWidget {
   const AcademicHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final gradeProvider = Provider.of<GradeProvider>(context);
+    final ipk = gradeProvider.calculateIPK();
+    final totalSks = gradeProvider.calculateTotalSKS();
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
@@ -58,7 +65,7 @@ class AcademicHistoryScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '3.85',
+                            ipk.toStringAsFixed(2),
                             style: GoogleFonts.outfit(
                               color: Colors.white,
                               fontSize: 48,
@@ -81,9 +88,9 @@ class AcademicHistoryScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildSummaryInfo('Total SKS', '84'),
-                      _buildSummaryInfo('Semester', '4'),
-                      _buildSummaryInfo('Predikat', 'Pujian'),
+                      _buildSummaryInfo('Total SKS', totalSks.toString()),
+                      _buildSummaryInfo('Semester', '4'), // Or dynamic based on user
+                      _buildSummaryInfo('Predikat', ipk >= 3.5 ? 'Pujian' : (ipk >= 3.0 ? 'Sangat Memuaskan' : 'Memuaskan')),
                     ],
                   ),
                 ],
@@ -100,10 +107,10 @@ class AcademicHistoryScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            _buildSemesterCard('Semester 4', '3.90', '21 SKS', true),
-            _buildSemesterCard('Semester 3', '3.82', '22 SKS', false),
-            _buildSemesterCard('Semester 2', '3.78', '20 SKS', false),
-            _buildSemesterCard('Semester 1', '3.92', '21 SKS', false),
+            _buildSemesterCard(context, 4, gradeProvider),
+            _buildSemesterCard(context, 3, gradeProvider),
+            _buildSemesterCard(context, 2, gradeProvider),
+            _buildSemesterCard(context, 1, gradeProvider),
           ],
         ),
       ),
@@ -126,62 +133,83 @@ class AcademicHistoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSemesterCard(String title, String ips, String sks, bool isCurrent) {
+  Widget _buildSemesterCard(BuildContext context, int semesterNumber, GradeProvider provider) {
+    final ips = provider.calculateIPS(semesterNumber);
+    final sks = provider.getGradesBySemester(semesterNumber).fold(0, (sum, item) => sum + item.sks);
+    final isCurrent = semesterNumber == 4; // Mock logic for current semester
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: isCurrent ? Border.all(color: AppTheme.primaryColor.withOpacity(0.3), width: 1) : null,
-        boxShadow: AppTheme.softShadow,
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SemesterDetailScreen(
+                  semesterNumber: semesterNumber,
+                ),
+              ),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: isCurrent ? Border.all(color: AppTheme.primaryColor.withOpacity(0.3), width: 1) : null,
+              boxShadow: AppTheme.softShadow,
             ),
-            child: Icon(Icons.class_outlined, color: AppTheme.primaryColor, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  title,
-                  style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppTheme.slateDark),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(Icons.class_outlined, color: AppTheme.primaryColor, size: 24),
                 ),
-                Text(
-                  sks,
-                  style: GoogleFonts.inter(fontSize: 12, color: AppTheme.slateGray),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Semester $semesterNumber',
+                        style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppTheme.slateDark),
+                      ),
+                      Text(
+                        '$sks SKS',
+                        style: GoogleFonts.inter(fontSize: 12, color: AppTheme.slateGray),
+                      ),
+                    ],
+                  ),
                 ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      ips.toStringAsFixed(2),
+                      style: GoogleFonts.outfit(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: AppTheme.primaryColor,
+                      ),
+                    ),
+                    Text(
+                      'IPS',
+                      style: GoogleFonts.inter(fontSize: 10, color: AppTheme.slateGray, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 8),
+                const Icon(Icons.chevron_right_rounded, color: AppTheme.slateGray),
               ],
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                ips,
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: AppTheme.primaryColor,
-                ),
-              ),
-              Text(
-                'IPS',
-                style: GoogleFonts.inter(fontSize: 10, color: AppTheme.slateGray, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const SizedBox(width: 8),
-          const Icon(Icons.chevron_right_rounded, color: AppTheme.slateGray),
-        ],
+        ),
       ),
     );
   }
