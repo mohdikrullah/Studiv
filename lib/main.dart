@@ -5,6 +5,7 @@ import 'providers/task_provider.dart';
 import 'providers/schedule_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/navigation_provider.dart';
+import 'providers/grade_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'services/local_db_service.dart';
 
@@ -21,6 +22,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ScheduleProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
+        ChangeNotifierProvider(create: (_) => GradeProvider()..loadGrades()),
       ],
       child: const MyApp(),
     ),
