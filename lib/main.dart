@@ -5,8 +5,14 @@ import 'providers/task_provider.dart';
 import 'providers/schedule_provider.dart';
 import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
+import 'services/local_db_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Local Database (Hive)
+  await LocalDbService.init();
+
   runApp(
     MultiProvider(
       providers: [
