@@ -5,6 +5,8 @@ import 'dashboard/dashboard_screen.dart';
 import 'profile/profile_screen.dart';
 import 'schedule/schedule_screen.dart';
 import 'tasks/tasks_screen.dart';
+import '../providers/navigation_provider.dart';
+import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -14,8 +16,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _pageIndex = 0;
-  
   final List<Widget> _screens = [
     const DashboardScreen(),
     const ScheduleScreen(),
@@ -25,8 +25,10 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final navProvider = Provider.of<NavigationProvider>(context);
+    
     return Scaffold(
-      body: _screens[_pageIndex],
+      body: _screens[navProvider.currentIndex],
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
@@ -43,10 +45,10 @@ class _MainScreenState extends State<MainScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildNavItem(0, Icons.home_rounded, "Home"),
-              _buildNavItem(1, Icons.calendar_month_rounded, "Jadwal"),
-              _buildNavItem(2, Icons.assignment_rounded, "Tugas"),
-              _buildNavItem(3, Icons.person_rounded, "Profil"),
+              _buildNavItem(context, 0, Icons.home_rounded, "Home"),
+              _buildNavItem(context, 1, Icons.calendar_month_rounded, "Jadwal"),
+              _buildNavItem(context, 2, Icons.assignment_rounded, "Tugas"),
+              _buildNavItem(context, 3, Icons.person_rounded, "Profil"),
             ],
           ),
         ),
@@ -54,10 +56,12 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
-    bool isActive = _pageIndex == index;
+  Widget _buildNavItem(BuildContext context, int index, IconData icon, String label) {
+    final navProvider = Provider.of<NavigationProvider>(context);
+    bool isActive = navProvider.currentIndex == index;
+    
     return GestureDetector(
-      onTap: () => setState(() => _pageIndex = index),
+      onTap: () => navProvider.setIndex(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

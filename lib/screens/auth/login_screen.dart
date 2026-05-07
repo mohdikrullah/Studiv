@@ -156,16 +156,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         'Belum punya akun? ',
                         style: GoogleFonts.inter(color: AppTheme.slateGray),
                       ),
-                      GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const RegisterScreen()),
-                        ),
-                        child: Text(
-                          'Daftar Sekarang',
-                          style: GoogleFonts.inter(
-                            color: AppTheme.primaryColor,
-                            fontWeight: FontWeight.bold,
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                          ),
+                          child: Text(
+                            'Daftar Sekarang',
+                            style: GoogleFonts.inter(
+                              color: AppTheme.primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),

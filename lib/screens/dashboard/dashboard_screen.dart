@@ -5,6 +5,7 @@ import '../../theme/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/schedule_provider.dart';
 import '../../models/schedule_model.dart';
+import '../../providers/navigation_provider.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -134,6 +135,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<AuthProvider>(context).user;
+    final navProvider = Provider.of<NavigationProvider>(context, listen: false);
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -163,11 +165,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         letterSpacing: 1.5,
                       ),
                     ),
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-                      backgroundImage: user?.profilePicture != null ? NetworkImage(user!.profilePicture!) : null,
-                      child: user?.profilePicture == null ? const Icon(Icons.person, color: AppTheme.primaryColor) : null,
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () => navProvider.setIndex(3), // Go to Profile
+                        child: CircleAvatar(
+                          radius: 20,
+                          backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                          backgroundImage: user?.profilePicture != null ? NetworkImage(user!.profilePicture!) : null,
+                          child: user?.profilePicture == null ? const Icon(Icons.person, color: AppTheme.primaryColor) : null,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -195,7 +203,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 32),
 
               // --- Jadwal Kuliah Section ---
-              _buildSectionHeader('Jadwal Kuliah', () {}),
+              _buildSectionHeader('Jadwal Kuliah', () {
+                navProvider.setIndex(1); // Go to Schedule tab
+              }),
               const SizedBox(height: 16),
               SizedBox(
                 height: 160,
@@ -218,7 +228,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 32),
 
               // --- Tugas Mendesak Section ---
-              _buildSectionHeader('Tugas Mendesak', null),
+              _buildSectionHeader('Tugas Mendesak', () {
+                navProvider.setIndex(2); // Go to Tasks tab
+              }),
               const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -281,11 +293,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.slateDark),
           ),
           if (onAction != null)
-            GestureDetector(
-              onTap: onAction,
-              child: Text(
-                'Lihat Semua',
-                style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.primaryColor),
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: onAction,
+                child: Text(
+                  'Lihat Semua',
+                  style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.primaryColor),
+                ),
               ),
             ),
         ],
