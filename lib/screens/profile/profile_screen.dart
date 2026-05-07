@@ -4,6 +4,10 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
 import 'edit_profile_screen.dart';
+import 'academic_history_screen.dart';
+import 'notifications_screen.dart';
+import 'privacy_security_screen.dart';
+import 'help_center_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -138,20 +142,23 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: AppTheme.slateLight),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: OutlinedButton(
+                        onPressed: () {},
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: AppTheme.slateLight),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        'Bagikan Profil',
-                        style: GoogleFonts.inter(
-                          color: AppTheme.slateDark,
-                          fontWeight: FontWeight.w600,
+                        child: Text(
+                          'Bagikan Profil',
+                          style: GoogleFonts.inter(
+                            color: AppTheme.slateDark,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
@@ -178,10 +185,10 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildListTile('Riwayat Akademik', Icons.history_rounded),
-                  _buildListTile('Notifikasi', Icons.notifications_none_rounded),
-                  _buildListTile('Privasi & Keamanan', Icons.lock_outline_rounded),
-                  _buildListTile('Pusat Bantuan', Icons.help_outline_rounded),
+                  _buildListTile(context, 'Riwayat Akademik', Icons.history_rounded),
+                  _buildListTile(context, 'Notifikasi', Icons.notifications_none_rounded),
+                  _buildListTile(context, 'Privasi & Keamanan', Icons.lock_outline_rounded),
+                  _buildListTile(context, 'Pusat Bantuan', Icons.help_outline_rounded),
                 ],
               ),
             ),
@@ -222,29 +229,51 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildListTile(String title, IconData icon) {
+  Widget _buildListTile(BuildContext context, String title, IconData icon) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppTheme.slateLight,
-            borderRadius: BorderRadius.circular(8),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppTheme.slateLight,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 20, color: AppTheme.slateDark),
           ),
-          child: Icon(icon, size: 20, color: AppTheme.slateDark),
-        ),
-        title: Text(
-          title,
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-            color: AppTheme.slateDark,
+          title: Text(
+            title,
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.slateDark,
+            ),
           ),
+          trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.slateGray, size: 20),
+          onTap: () {
+            Widget screen;
+            switch (title) {
+              case 'Riwayat Akademik':
+                screen = const AcademicHistoryScreen();
+                break;
+              case 'Notifikasi':
+                screen = const NotificationsScreen();
+                break;
+              case 'Privasi & Keamanan':
+                screen = const PrivacySecurityScreen();
+                break;
+              case 'Pusat Bantuan':
+                screen = const HelpCenterScreen();
+                break;
+              default:
+                return;
+            }
+            Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
+          },
         ),
-        trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.slateGray, size: 20),
-        onTap: () {},
       ),
     );
   }
