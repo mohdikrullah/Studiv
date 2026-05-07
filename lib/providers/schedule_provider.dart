@@ -17,12 +17,16 @@ class ScheduleProvider with ChangeNotifier {
         subject: 'Struktur Data',
         time: '10:00',
         room: 'Ruang 402',
+        day: 'Senin',
+        lecturer: 'Dr. Aris P.',
       ));
       addSchedule(ScheduleModel(
         id: 's2',
         subject: 'Rekayasa Perangkat Lunak',
         time: '13:00',
         room: 'Lab Komputer A',
+        day: 'Selasa',
+        lecturer: 'Ibu Sarah M.',
       ));
     }
     notifyListeners();
@@ -32,5 +36,20 @@ class ScheduleProvider with ChangeNotifier {
     LocalDbService.addSchedule(schedule);
     _schedules.add(schedule);
     notifyListeners();
+  }
+
+  void deleteSchedule(String id) {
+    LocalDbService.deleteSchedule(id);
+    _schedules.removeWhere((s) => s.id == id);
+    notifyListeners();
+  }
+
+  void updateSchedule(ScheduleModel schedule) {
+    LocalDbService.addSchedule(schedule); // Hive put replaces if key exists
+    int index = _schedules.indexWhere((s) => s.id == schedule.id);
+    if (index != -1) {
+      _schedules[index] = schedule;
+      notifyListeners();
+    }
   }
 }

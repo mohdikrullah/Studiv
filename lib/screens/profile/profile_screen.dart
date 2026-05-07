@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
@@ -13,89 +14,175 @@ class ProfileScreen extends StatelessWidget {
     final user = authProvider.user;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('Profil', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          'PROFIL',
+          style: GoogleFonts.outfit(
+            color: AppTheme.primaryColor,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.slateDark),
+          onPressed: () => Navigator.pop(context),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout_rounded, color: Colors.redAccent),
             onPressed: () => authProvider.logout(),
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 24),
         child: Column(
           children: [
-            const SizedBox(height: 20),
-            // Instagram Style Profile Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Profile Picture
-                CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.grey[200],
-                  backgroundImage: user?.profilePicture != null
-                      ? NetworkImage(user!.profilePicture!)
-                      : null,
-                  child: user?.profilePicture == null
-                      ? Icon(Icons.person, size: 50, color: Colors.grey[400])
-                      : null,
-                ),
-              ],
+            // --- Instagram-Inspired Header ---
+            const SizedBox(height: 10),
+            Center(
+              child: Column(
+                children: [
+                  // Avatar with purple ring
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppTheme.primaryColor, width: 2),
+                    ),
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: AppTheme.slateLight,
+                      backgroundImage: user?.profilePicture != null 
+                        ? NetworkImage(user!.profilePicture!) 
+                        : null,
+                      child: user?.profilePicture == null 
+                        ? const Icon(Icons.person_rounded, size: 50, color: AppTheme.slateGray) 
+                        : null,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Identity
+                  Text(
+                    user?.fullName ?? 'Nama Belum Diatur',
+                    style: GoogleFonts.inter(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.slateDark,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '@${user?.username ?? "username"}',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: AppTheme.slateGray,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
             
-            // Name & Username
-            Text(
-              user?.fullName ?? 'Nama Belum Diatur',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              '@${user?.username ?? "username"}',
-              style: TextStyle(color: Colors.grey[600], fontSize: 14),
-            ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
-            // Academic Info Card
+            // --- Instagram-Style Stats / Academic Info ---
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 24),
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.1)),
+                color: AppTheme.surfaceColor,
+                borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+                boxShadow: AppTheme.softShadow,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildInfoItem('Kampus', user?.campus ?? '-'),
-                  Container(width: 1, height: 40, color: Colors.grey[300]),
-                  _buildInfoItem('Semester', user?.semester?.toString() ?? '-'),
+                  _buildStatItem('Kampus', user?.campus ?? '-', Icons.school_outlined),
+                  Container(width: 1, height: 40, color: AppTheme.slateLight),
+                  _buildStatItem('Semester', user?.semester?.toString() ?? '-', Icons.calendar_today_outlined),
                 ],
               ),
             ),
-            const SizedBox(height: 30),
+            
+            const SizedBox(height: 24),
 
-            // Edit Profile Button
+            // --- Action Buttons (Wide IG Style) ---
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const EditProfileScreen()),
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    side: BorderSide(color: Colors.grey[300]!),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+                        ),
+                      ),
+                      child: Text(
+                        'Edit Profil',
+                        style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
-                  child: const Text('Edit Profil', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
-                ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () {},
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: AppTheme.slateLight),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+                        ),
+                      ),
+                      child: Text(
+                        'Bagikan Profil',
+                        style: GoogleFonts.inter(
+                          color: AppTheme.slateDark,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 32),
+
+            // --- Secondary Menu List ---
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'PENGATURAN AKUN',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.slateGray,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildListTile('Riwayat Akademik', Icons.history_rounded),
+                  _buildListTile('Notifikasi', Icons.notifications_none_rounded),
+                  _buildListTile('Privasi & Keamanan', Icons.lock_outline_rounded),
+                  _buildListTile('Pusat Bantuan', Icons.help_outline_rounded),
+                ],
               ),
             ),
           ],
@@ -104,13 +191,61 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoItem(String label, String value) {
-    return Column(
-      children: [
-        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-        const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-      ],
+  Widget _buildStatItem(String label, String value, IconData icon) {
+    return Expanded(
+      child: Column(
+        children: [
+          Icon(icon, size: 20, color: AppTheme.primaryColor),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: AppTheme.slateDark,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: AppTheme.slateGray,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildListTile(String title, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppTheme.slateLight,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 20, color: AppTheme.slateDark),
+        ),
+        title: Text(
+          title,
+          style: GoogleFonts.inter(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+            color: AppTheme.slateDark,
+          ),
+        ),
+        trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.slateGray, size: 20),
+        onTap: () {},
+      ),
     );
   }
 }

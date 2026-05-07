@@ -3,26 +3,28 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // --- Color Palette ---
-  // Primary: Indigo
-  static const Color primaryColor = Color(0xFF4F46E5); // Indigo 600
-  static const Color primaryLight = Color(0xFF818CF8); // Indigo 400
-  static const Color primaryDark = Color(0xFF3730A3);  // Indigo 800
+  // Primary: Studiv Purple
+  static const Color primaryColor = Color(0xFF6C63FF); 
+  static const Color primaryLight = Color(0xFF8E88FF); 
+  static const Color primaryDark = Color(0xFF4B44CC);  
 
-  // Secondary / Text: Slate Gray
-  static const Color slateGray = Color(0xFF64748B);    // Slate 500
-  static const Color slateDark = Color(0xFF334155);    // Slate 700
-  static const Color slateLight = Color(0xFF94A3B8);   // Slate 400
+  // Neutral Colors
+  static const Color slateGray = Color(0xFF64748B);    
+  static const Color slateDark = Color(0xFF1E293B);    
+  static const Color slateLight = Color(0xFFF1F5F9);   
 
-  // Background
-  static const Color backgroundColor = Color(0xFFF8FAFC); // Slate 50
-  static const Color surfaceColor = Colors.white;
+  // Backgrounds
+  static const Color backgroundColor = Colors.white;
+  static const Color surfaceColor = Color(0xFFF9F9FF); 
 
-  // --- Neumorphic / UI Helpers ---
+  // --- UI Helpers ---
+  static const double borderRadius = 12.0;
+  
   static List<BoxShadow> softShadow = [
     BoxShadow(
-      color: slateGray.withValues(alpha: 0.15),
-      blurRadius: 15,
-      offset: const Offset(0, 8),
+      color: Colors.black.withValues(alpha: 0.05),
+      blurRadius: 10,
+      offset: const Offset(0, 4),
     )
   ];
 
@@ -32,26 +34,54 @@ class AppTheme {
       scaffoldBackgroundColor: backgroundColor,
       colorScheme: const ColorScheme.light(
         primary: primaryColor,
-        secondary: slateGray,
+        secondary: primaryLight,
         surface: surfaceColor,
+        onSurface: slateDark,
       ),
       textTheme: GoogleFonts.interTextTheme().copyWith(
-        displayLarge: GoogleFonts.inter(color: slateDark, fontWeight: FontWeight.bold),
-        displayMedium: GoogleFonts.inter(color: slateDark, fontWeight: FontWeight.bold),
-        bodyLarge: GoogleFonts.inter(color: slateDark),
-        bodyMedium: GoogleFonts.inter(color: slateGray),
+        displayLarge: GoogleFonts.inter(color: slateDark, fontWeight: FontWeight.bold, fontSize: 32),
+        displayMedium: GoogleFonts.inter(color: slateDark, fontWeight: FontWeight.bold, fontSize: 24),
+        bodyLarge: GoogleFonts.inter(color: slateDark, fontSize: 16),
+        bodyMedium: GoogleFonts.inter(color: slateGray, fontSize: 14),
       ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.transparent,
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.white,
         elevation: 0,
-        iconTheme: IconThemeData(color: slateDark),
+        iconTheme: const IconThemeData(color: slateDark),
         centerTitle: true,
+        titleTextStyle: GoogleFonts.outfit(
+          color: primaryColor,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
       ),
-      cardTheme: CardThemeData(
-        color: surfaceColor,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: slateLight,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: const BorderSide(color: primaryColor, width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColor,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          textStyle: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16),
         ),
       ),
     );

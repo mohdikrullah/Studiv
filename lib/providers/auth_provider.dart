@@ -57,6 +57,29 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<void> updateProfile({
+    required String fullName,
+    required String campus,
+    required int semester,
+    String? imagePath,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final Map<String, dynamic> data = {
+        'full_name': fullName,
+        'campus': campus,
+        'semester': semester,
+        'profile_picture': imagePath,
+      };
+      
+      _user = await _authService.updateProfile(data);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
