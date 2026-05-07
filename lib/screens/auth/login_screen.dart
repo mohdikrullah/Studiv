@@ -174,6 +174,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 64),
+                  Text(
+                    '© 2026 Studiv from Dikzz',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.slateGray.withOpacity(0.5),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),

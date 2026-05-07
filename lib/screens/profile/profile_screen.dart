@@ -192,6 +192,32 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
+
+            const SizedBox(height: 32),
+            Center(
+              child: Column(
+                children: [
+                  Text(
+                    '© 2026 Studiv from Dikzz',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.slateGray.withOpacity(0.6),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Version 1.0.0',
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      color: AppTheme.slateGray.withOpacity(0.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16), // Reduced space
           ],
         ),
       ),
