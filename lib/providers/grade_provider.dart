@@ -49,6 +49,16 @@ class GradeProvider with ChangeNotifier {
     if (data != null) {
       _grades = (data as List).map((item) => GradeModel.fromJson(Map<String, dynamic>.from(item))).toList();
       notifyListeners();
+    } else {
+      // Add dummy data for demonstration
+      _grades = [
+        GradeModel(id: 'd1', name: 'Pemrograman Mobile', sks: 3, grade: 'A', semester: 4),
+        GradeModel(id: 'd2', name: 'Basis Data', sks: 4, grade: 'B+', semester: 4),
+        GradeModel(id: 'd3', name: 'Matematika Diskrit', sks: 3, grade: 'A-', semester: 3),
+        GradeModel(id: 'd4', name: 'Struktur Data', sks: 3, grade: 'B', semester: 2),
+      ];
+      await _saveToDisk();
+      notifyListeners();
     }
   }
 
@@ -56,6 +66,15 @@ class GradeProvider with ChangeNotifier {
     _grades.add(grade);
     await _saveToDisk();
     notifyListeners();
+  }
+
+  Future<void> updateGrade(GradeModel grade) async {
+    final index = _grades.indexWhere((g) => g.id == grade.id);
+    if (index != -1) {
+      _grades[index] = grade;
+      await _saveToDisk();
+      notifyListeners();
+    }
   }
 
   Future<void> removeGrade(String id) async {
