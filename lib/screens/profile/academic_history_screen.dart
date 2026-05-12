@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../theme/app_theme.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/grade_provider.dart';
 import 'semester_detail_screen.dart';
 
@@ -11,6 +12,10 @@ class AcademicHistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gradeProvider = Provider.of<GradeProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user;
+    final currentSemester = user?.semester ?? 1;
+    
     final ipk = gradeProvider.calculateIPK();
     final totalSks = gradeProvider.calculateTotalSKS();
 
@@ -89,7 +94,7 @@ class AcademicHistoryScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildSummaryInfo('Total SKS', totalSks.toString()),
-                      _buildSummaryInfo('Semester', '4'), // Or dynamic based on user
+                      _buildSummaryInfo('Semester', currentSemester.toString()), // Dynamic based on user
                       _buildSummaryInfo('Predikat', ipk >= 3.5 ? 'Pujian' : (ipk >= 3.0 ? 'Sangat Memuaskan' : 'Memuaskan')),
                     ],
                   ),
@@ -107,10 +112,11 @@ class AcademicHistoryScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            _buildSemesterCard(context, 4, gradeProvider),
-            _buildSemesterCard(context, 3, gradeProvider),
-            _buildSemesterCard(context, 2, gradeProvider),
-            _buildSemesterCard(context, 1, gradeProvider),
+            const SizedBox(height: 16),
+            ...List.generate(currentSemester, (index) {
+              final semesterNum = currentSemester - index;
+              return _buildSemesterCard(context, semesterNum, gradeProvider, currentSemester);
+            }),
           ],
         ),
       ),
@@ -133,10 +139,10 @@ class AcademicHistoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSemesterCard(BuildContext context, int semesterNumber, GradeProvider provider) {
+  Widget _buildSemesterCard(BuildContext context, int semesterNumber, GradeProvider provider, int currentSemester) {
     final ips = provider.calculateIPS(semesterNumber);
     final sks = provider.getGradesBySemester(semesterNumber).fold(0, (sum, item) => sum + item.sks);
-    final isCurrent = semesterNumber == 4; // Mock logic for current semester
+    final isCurrent = semesterNumber == currentSemester;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
