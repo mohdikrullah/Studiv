@@ -1,7 +1,6 @@
 class GradeModel {
   final String id;
   final String name;
-  final String code;
   final int sks;
   final String grade;
   final int semester;
@@ -9,7 +8,6 @@ class GradeModel {
   GradeModel({
     required this.id,
     required this.name,
-    required this.code,
     required this.sks,
     required this.grade,
     required this.semester,
@@ -19,7 +17,6 @@ class GradeModel {
     return {
       'id': id,
       'name': name,
-      'code': code,
       'sks': sks,
       'grade': grade,
       'semester': semester,
@@ -30,7 +27,6 @@ class GradeModel {
     return GradeModel(
       id: json['id'],
       name: json['name'],
-      code: json['code'],
       sks: json['sks'],
       grade: json['grade'],
       semester: json['semester'],
