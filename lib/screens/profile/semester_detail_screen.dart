@@ -19,11 +19,10 @@ class SemesterDetailScreen extends StatefulWidget {
 }
 
 class _SemesterDetailScreenState extends State<SemesterDetailScreen> {
-  void _showAddGradeSheet() {
-    final nameController = TextEditingController();
-    final codeController = TextEditingController();
-    final sksController = TextEditingController();
-    String selectedGrade = 'A';
+  void _showAddGradeSheet({GradeModel? editGrade}) {
+    final nameController = TextEditingController(text: editGrade?.name);
+    final sksController = TextEditingController(text: editGrade?.sks.toString());
+    String selectedGrade = editGrade?.grade ?? 'A';
 
     showModalBottomSheet(
       context: context,
@@ -58,31 +57,23 @@ class _SemesterDetailScreenState extends State<SemesterDetailScreen> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Tambah Mata Kuliah',
+                  editGrade == null ? 'Tambah Mata Kuliah' : 'Edit Mata Kuliah',
                   style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.slateDark),
                 ),
                 const SizedBox(height: 24),
                 _buildSheetField('Nama Mata Kuliah', nameController, Icons.book_outlined),
                 const SizedBox(height: 16),
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: _buildSheetField('Kode MK', codeController, Icons.code_rounded)),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('SKS', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.slateGray)),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: sksController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              hintText: 'Contoh: 3',
-                              prefixIcon: Icon(Icons.numbers_rounded, size: 20, color: AppTheme.primaryColor),
-                            ),
-                          ),
-                        ],
+                    Text('SKS', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.slateGray)),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: sksController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: 'Contoh: 3',
+                        prefixIcon: Icon(Icons.numbers_rounded, size: 20, color: AppTheme.primaryColor),
                       ),
                     ),
                   ],
@@ -115,19 +106,29 @@ class _SemesterDetailScreenState extends State<SemesterDetailScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (nameController.text.isNotEmpty && sksController.text.isNotEmpty) {
-                        final newGrade = GradeModel(
-                          id: DateTime.now().toString(),
-                          name: nameController.text,
-                          code: codeController.text,
-                          sks: int.tryParse(sksController.text) ?? 2,
-                          grade: selectedGrade,
-                          semester: widget.semesterNumber,
-                        );
-                        Provider.of<GradeProvider>(context, listen: false).addGrade(newGrade);
+                        if (editGrade == null) {
+                          final newGrade = GradeModel(
+                            id: DateTime.now().toString(),
+                            name: nameController.text,
+                            sks: int.tryParse(sksController.text) ?? 2,
+                            grade: selectedGrade,
+                            semester: widget.semesterNumber,
+                          );
+                          Provider.of<GradeProvider>(context, listen: false).addGrade(newGrade);
+                        } else {
+                          final updatedGrade = GradeModel(
+                            id: editGrade.id,
+                            name: nameController.text,
+                            sks: int.tryParse(sksController.text) ?? 2,
+                            grade: selectedGrade,
+                            semester: widget.semesterNumber,
+                          );
+                          Provider.of<GradeProvider>(context, listen: false).updateGrade(updatedGrade);
+                        }
                         Navigator.pop(context);
                       }
                     },
-                    child: const Text('Simpan Mata Kuliah'),
+                    child: Text(editGrade == null ? 'Simpan Mata Kuliah' : 'Perbarui Mata Kuliah'),
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -307,25 +308,28 @@ class _SemesterDetailScreenState extends State<SemesterDetailScreen> {
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  course.name,
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.slateDark,
-                    fontSize: 14,
+            child: InkWell(
+              onTap: () => _showAddGradeSheet(editGrade: course),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    course.name,
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.slateDark,
+                      fontSize: 14,
+                    ),
                   ),
-                ),
-                Text(
-                  '${course.code} • ${course.sks} SKS',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: AppTheme.slateGray,
+                  Text(
+                    '${course.sks} SKS',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: AppTheme.slateGray,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           IconButton(
