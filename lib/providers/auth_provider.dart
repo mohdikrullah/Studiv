@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
+import '../services/local_db_service.dart';
 
 class AuthProvider with ChangeNotifier {
   UserModel? _user;
@@ -12,17 +13,35 @@ class AuthProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _user != null;
 
-  Future<void> login(String login, String password) async {
+  Future<bool> tryAutoLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey('auth_token') || !prefs.containsKey('logged_in_username')) return false;
+
+    final username = prefs.getString('logged_in_username')!;
+    try {
+      await LocalDbService.initUser(username);
+      _user = await _authService.getProfile();
+      notifyListeners();
+      return true;
+    } catch (e) {
+      await logout();
+      return false;
+    }
+  }
+
+  Future<void> login(String loginUser, String password) async {
     _isLoading = true;
     notifyListeners();
     try {
-      final response = await _authService.login(login, password);
+      final response = await _authService.login(loginUser, password);
       final token = response['token'];
       final userData = response['user'];
       
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', token);
+      await prefs.setString('logged_in_username', userData['username']);
       
+      await LocalDbService.initUser(userData['username']);
       _user = UserModel.fromJson(userData);
     } finally {
       _isLoading = false;
@@ -40,7 +59,9 @@ class AuthProvider with ChangeNotifier {
       
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', token);
+      await prefs.setString('logged_in_username', userData['username']);
       
+      await LocalDbService.initUser(userData['username']);
       _user = UserModel.fromJson(userData);
     } finally {
       _isLoading = false;
@@ -83,6 +104,8 @@ class AuthProvider with ChangeNotifier {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
+    await prefs.remove('logged_in_username');
+    await LocalDbService.closeUser();
     _user = null;
     notifyListeners();
   }
