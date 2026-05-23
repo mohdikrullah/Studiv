@@ -44,22 +44,20 @@ class GradeProvider with ChangeNotifier {
     return _grades.fold(0, (sum, item) => sum + item.sks);
   }
 
+  void clearData() {
+    _grades = [];
+    notifyListeners();
+  }
+
   Future<void> loadGrades() async {
+    if (LocalDbService.currentUser == null) return;
     final data = LocalDbService.getData('grades');
     if (data != null) {
       _grades = (data as List).map((item) => GradeModel.fromJson(Map<String, dynamic>.from(item))).toList();
-      notifyListeners();
     } else {
-      // Add dummy data for demonstration
-      _grades = [
-        GradeModel(id: 'd1', name: 'Pemrograman Mobile', sks: 3, grade: 'A', semester: 4),
-        GradeModel(id: 'd2', name: 'Basis Data', sks: 4, grade: 'B+', semester: 4),
-        GradeModel(id: 'd3', name: 'Matematika Diskrit', sks: 3, grade: 'A-', semester: 3),
-        GradeModel(id: 'd4', name: 'Struktur Data', sks: 3, grade: 'B', semester: 2),
-      ];
-      await _saveToDisk();
-      notifyListeners();
+      _grades = [];
     }
+    notifyListeners();
   }
 
   Future<void> addGrade(GradeModel grade) async {
@@ -84,6 +82,7 @@ class GradeProvider with ChangeNotifier {
   }
 
   Future<void> _saveToDisk() async {
+    if (LocalDbService.currentUser == null) return;
     final data = _grades.map((g) => g.toJson()).toList();
     await LocalDbService.saveData('grades', data);
   }

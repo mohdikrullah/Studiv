@@ -7,44 +7,33 @@ class ScheduleProvider with ChangeNotifier {
 
   List<ScheduleModel> get schedules => _schedules;
 
+  void clearData() {
+    _schedules = [];
+    notifyListeners();
+  }
+
   void loadSchedules() {
+    if (LocalDbService.currentUser == null) return;
     _schedules = LocalDbService.getAllSchedules();
-    
-    // Add dummy data if empty, just to show UI
-    if (_schedules.isEmpty) {
-      addSchedule(ScheduleModel(
-        id: 's1',
-        subject: 'Struktur Data',
-        time: '10:00',
-        room: 'Ruang 402',
-        day: 'Senin',
-        lecturer: 'Dr. Aris P.',
-      ));
-      addSchedule(ScheduleModel(
-        id: 's2',
-        subject: 'Rekayasa Perangkat Lunak',
-        time: '13:00',
-        room: 'Lab Komputer A',
-        day: 'Selasa',
-        lecturer: 'Ibu Sarah M.',
-      ));
-    }
     notifyListeners();
   }
 
   void addSchedule(ScheduleModel schedule) {
+    if (LocalDbService.currentUser == null) return;
     LocalDbService.addSchedule(schedule);
     _schedules.add(schedule);
     notifyListeners();
   }
 
   void deleteSchedule(String id) {
+    if (LocalDbService.currentUser == null) return;
     LocalDbService.deleteSchedule(id);
     _schedules.removeWhere((s) => s.id == id);
     notifyListeners();
   }
 
   void updateSchedule(ScheduleModel schedule) {
+    if (LocalDbService.currentUser == null) return;
     LocalDbService.addSchedule(schedule); // Hive put replaces if key exists
     int index = _schedules.indexWhere((s) => s.id == schedule.id);
     if (index != -1) {
