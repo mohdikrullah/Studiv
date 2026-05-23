@@ -2,38 +2,64 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models/schedule_model.dart';
 
 class LocalDbService {
-  static const String scheduleBoxName = 'schedulesBox';
   static const String appBoxName = 'appBox';
+  static const String usersBoxName = 'usersBox';
+
+  static String? currentUser;
+  static Box<ScheduleModel>? _userScheduleBox;
 
   static Future<void> init() async {
     await Hive.initFlutter();
     Hive.registerAdapter(ScheduleModelAdapter());
-    await Hive.openBox<ScheduleModel>(scheduleBoxName);
     await Hive.openBox(appBoxName);
+    await Hive.openBox(usersBoxName);
   }
 
-  static Box<ScheduleModel> get scheduleBox => Hive.box<ScheduleModel>(scheduleBoxName);
   static Box get appBox => Hive.box(appBoxName);
+  static Box get usersBox => Hive.box(usersBoxName);
 
-  // Generic Storage Methods
+  static Future<void> initUser(String username) async {
+    currentUser = username;
+    final boxName = 'schedulesBox_$username';
+    if (!Hive.isBoxOpen(boxName)) {
+      _userScheduleBox = await Hive.openBox<ScheduleModel>(boxName);
+    } else {
+      _userScheduleBox = Hive.box<ScheduleModel>(boxName);
+    }
+  }
+
+  static Future<void> closeUser() async {
+    if (_userScheduleBox != null && _userScheduleBox!.isOpen) {
+      await _userScheduleBox!.close();
+    }
+    _userScheduleBox = null;
+    currentUser = null;
+  }
+
+  // Generic Storage Methods (Prefixed per user)
   static Future<void> saveData(String key, dynamic data) async {
-    await appBox.put(key, data);
+    if (currentUser == null) return;
+    await appBox.put('${currentUser}_$key', data);
   }
 
   static dynamic getData(String key) {
-    return appBox.get(key);
+    if (currentUser == null) return null;
+    return appBox.get('${currentUser}_$key');
   }
 
   // Schedule Specific
   static Future<void> addSchedule(ScheduleModel schedule) async {
-    await scheduleBox.put(schedule.id, schedule);
+    if (_userScheduleBox == null) return;
+    await _userScheduleBox!.put(schedule.id, schedule);
   }
 
   static List<ScheduleModel> getAllSchedules() {
-    return scheduleBox.values.toList();
+    if (_userScheduleBox == null) return [];
+    return _userScheduleBox!.values.toList();
   }
 
   static Future<void> deleteSchedule(String id) async {
-    await scheduleBox.delete(id);
+    if (_userScheduleBox == null) return;
+    await _userScheduleBox!.delete(id);
   }
 }
