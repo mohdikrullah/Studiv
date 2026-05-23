@@ -22,7 +22,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ScheduleProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
-        ChangeNotifierProvider(create: (_) => GradeProvider()..loadGrades()),
+        ChangeNotifierProvider(create: (_) => GradeProvider()),
       ],
       child: const MyApp(),
     ),

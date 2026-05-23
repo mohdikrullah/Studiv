@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/schedule_provider.dart';
+import '../../providers/task_provider.dart';
+import '../../providers/grade_provider.dart';
 import '../../theme/app_theme.dart';
+import '../auth/login_screen.dart';
 import 'edit_profile_screen.dart';
 import 'academic_history_screen.dart';
 import 'notifications_screen.dart';
@@ -35,7 +39,19 @@ class ProfileScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout_rounded, color: Colors.redAccent),
-            onPressed: () => authProvider.logout(),
+            onPressed: () async {
+              Provider.of<ScheduleProvider>(context, listen: false).clearData();
+              Provider.of<TaskProvider>(context, listen: false).clearData();
+              Provider.of<GradeProvider>(context, listen: false).clearData();
+              await authProvider.logout();
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (route) => false,
+                );
+              }
+            },
           ),
           const SizedBox(width: 8),
         ],

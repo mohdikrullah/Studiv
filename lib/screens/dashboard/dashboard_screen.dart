@@ -6,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/schedule_provider.dart';
 import '../../models/schedule_model.dart';
 import '../../providers/navigation_provider.dart';
+import '../../widgets/studiv_app_bar.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -139,6 +140,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
+      appBar: StudivAppBar(
+        hasNotif: true,
+        onNotifTap: () {
+          // TODO: navigate ke NotificationsScreen
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tidak ada notifikasi baru'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddScheduleSheet,
         backgroundColor: AppTheme.primaryColor,
@@ -150,40 +163,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // --- Header ---
+              // --- Sapaan (header manual diganti AppBar di atas) ---
               Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'STUDIV',
-                      style: GoogleFonts.outfit(
-                        color: AppTheme.primaryColor,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () => navProvider.setIndex(3), // Go to Profile
-                        child: CircleAvatar(
-                          radius: 20,
-                          backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-                          backgroundImage: user?.profilePicture != null ? NetworkImage(user!.profilePicture!) : null,
-                          child: user?.profilePicture == null ? const Icon(Icons.person, color: AppTheme.primaryColor) : null,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // --- Sapaan ---
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
