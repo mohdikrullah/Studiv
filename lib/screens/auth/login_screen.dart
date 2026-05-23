@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/schedule_provider.dart';
+import '../../providers/task_provider.dart';
+import '../../providers/grade_provider.dart';
 import '../../theme/app_theme.dart';
 import 'register_screen.dart';
 import '../main_screen.dart';
@@ -121,6 +124,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     _passwordController.text,
                                   );
                                   if (mounted) {
+                                    Provider.of<ScheduleProvider>(context, listen: false).loadSchedules();
+                                    Provider.of<TaskProvider>(context, listen: false).fetchTasks();
+                                    Provider.of<GradeProvider>(context, listen: false).loadGrades();
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(builder: (context) => const MainScreen()),
