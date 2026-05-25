@@ -7,6 +7,7 @@ import '../../providers/task_provider.dart';
 import '../../providers/grade_provider.dart';
 import '../../theme/app_theme.dart';
 import 'register_screen.dart';
+import 'forgot_password_screen.dart';
 import '../main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -107,6 +108,31 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     validator: (value) => value!.length < 6 ? 'Password minimal 6 karakter' : null,
                   ),
+                  const SizedBox(height: 8),
+
+                  // Forgot Password Link
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
+                          );
+                        },
+                        child: Text(
+                          'Lupa password?',
+                          style: GoogleFonts.inter(
+                            color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 32),
 
                   // Login Button
@@ -120,8 +146,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               if (_formKey.currentState!.validate()) {
                                 try {
                                   await authProvider.login(
-                                    _loginController.text,
-                                    _passwordController.text,
+                                    _loginController.text.trim(),
+                                    _passwordController.text.trim(),
                                   );
                                   if (mounted) {
                                     Provider.of<ScheduleProvider>(context, listen: false).loadSchedules();

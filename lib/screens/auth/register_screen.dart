@@ -134,9 +134,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             if (_formKey.currentState!.validate()) {
                               try {
                                 await authProvider.register(
-                                  _usernameController.text,
-                                  _emailController.text,
-                                  _passwordController.text,
+                                  _usernameController.text.trim(),
+                                  _emailController.text.trim(),
+                                  _passwordController.text.trim(),
                                 );
                                 if (mounted) {
                                   Navigator.pushAndRemoveUntil(

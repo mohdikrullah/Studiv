@@ -71,7 +71,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> with SingleTickerProvid
   Widget _buildScheduleList(String day) {
     return Consumer<ScheduleProvider>(
       builder: (context, provider, child) {
-        final daySchedules = provider.schedules.where((s) => s.day == day).toList();
+        final daySchedules = provider.schedules.where((s) => s.day?.trim().toLowerCase() == day.toLowerCase()).toList();
 
         if (daySchedules.isEmpty) {
           return Center(

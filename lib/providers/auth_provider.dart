@@ -109,4 +109,26 @@ class AuthProvider with ChangeNotifier {
     _user = null;
     notifyListeners();
   }
+
+  Future<bool> verifyUserForReset(String username, String email) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      return await _authService.verifyUserForReset(username, email);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> resetPassword(String username, String newPassword) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _authService.resetPassword(username, newPassword);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }
