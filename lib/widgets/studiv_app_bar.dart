@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -144,9 +146,7 @@ class _ProfileAvatar extends StatelessWidget {
           child: CircleAvatar(
             radius: 16,
             backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-            backgroundImage: user?.profilePicture != null
-                ? NetworkImage(user!.profilePicture!)
-                : null,
+            backgroundImage: _buildAvatarImage(user?.profilePicture),
             child: user?.profilePicture == null
                 ? Icon(Icons.person_rounded,
                     size: 18, color: AppTheme.primaryColor)
@@ -155,5 +155,13 @@ class _ProfileAvatar extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  ImageProvider? _buildAvatarImage(String? path) {
+    if (path == null || path.isEmpty) return null;
+    if (kIsWeb) return NetworkImage(path);
+    final f = File(path);
+    if (f.existsSync()) return FileImage(f);
+    return null;
   }
 }

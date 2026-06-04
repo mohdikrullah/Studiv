@@ -159,9 +159,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                     );
                                   }
                                 } catch (e) {
+                                  // Ambil pesan yang bersih tanpa "Exception: " dan debug info
+                                  String rawMsg = e.toString();
+                                  String cleanMsg;
+                                  if (rawMsg.contains('Username tidak ditemukan')) {
+                                    cleanMsg = 'Username tidak ditemukan';
+                                  } else if (rawMsg.contains('Password salah')) {
+                                    cleanMsg = 'Password salah';
+                                  } else {
+                                    cleanMsg = rawMsg.replaceFirst('Exception: ', '');
+                                  }
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(e.toString()),
+                                      content: Text(cleanMsg),
                                       backgroundColor: Colors.redAccent,
                                       behavior: SnackBarBehavior.floating,
                                     ),

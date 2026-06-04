@@ -48,6 +48,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> with SingleTickerProvid
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
+          tabAlignment: TabAlignment.start,
+          padding: EdgeInsets.zero,
           labelColor: AppTheme.primaryColor,
           unselectedLabelColor: AppTheme.slateGray,
           indicatorColor: AppTheme.primaryColor,

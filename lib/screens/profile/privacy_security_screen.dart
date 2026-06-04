@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
+import 'change_password_screen.dart';
+import 'two_factor_auth_screen.dart';
+import 'linked_devices_screen.dart';
+import 'profile_visibility_screen.dart';
+import 'share_grades_screen.dart';
+import 'delete_account_screen.dart';
+import 'notification_settings_screen.dart';
 
 class PrivacySecurityScreen extends StatelessWidget {
   const PrivacySecurityScreen({super.key});
@@ -32,21 +39,27 @@ class PrivacySecurityScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _buildMenuTile(
               'Ubah Password',
-              'Terakhir diubah 3 bulan yang lalu',
+              'Perbarui password akun Anda',
               Icons.lock_reset_rounded,
-              () {},
+              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChangePasswordScreen())),
             ),
             _buildMenuTile(
               'Otentikasi Dua Faktor',
               'Amankan akun dengan verifikasi tambahan',
               Icons.verified_user_outlined,
-              () {},
+              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TwoFactorAuthScreen())),
+            ),
+            _buildMenuTile(
+              'Pengaturan Nada Alarm',
+              'Atur nada untuk pengingat jadwal kuliah',
+              Icons.notifications_active_outlined,
+              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationSettingsScreen())),
             ),
             _buildMenuTile(
               'Perangkat Tertaut',
               'Lihat di mana saja Anda login',
               Icons.devices_rounded,
-              () {},
+              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LinkedDevicesScreen())),
             ),
             
             const SizedBox(height: 32),
@@ -56,19 +69,19 @@ class PrivacySecurityScreen extends StatelessWidget {
               'Visibilitas Profil',
               'Atur siapa saja yang bisa melihat profil Anda',
               Icons.visibility_outlined,
-              () {},
+              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileVisibilityScreen())),
             ),
             _buildMenuTile(
               'Bagikan Nilai',
               'Izinkan teman melihat pencapaian akademik',
               Icons.share_outlined,
-              () {},
+              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ShareGradesScreen())),
             ),
             _buildMenuTile(
               'Hapus Akun',
               'Hapus permanen data dan akun Studiv',
               Icons.delete_outline_rounded,
-              () {},
+              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DeleteAccountScreen())),
               isDestructive: true,
             ),
           ],

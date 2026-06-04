@@ -6,14 +6,16 @@ import 'providers/schedule_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/navigation_provider.dart';
 import 'providers/grade_provider.dart';
-import 'screens/auth/login_screen.dart';
+import 'screens/splash_screen.dart';
 import 'services/local_db_service.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Initialize Local Database (Hive)
   await LocalDbService.init();
+  await NotificationService.init();
 
   runApp(
     MultiProvider(
@@ -38,7 +40,7 @@ class MyApp extends StatelessWidget {
       title: 'STUDIV',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const LoginScreen(), // Set initial screen to Login
+      home: const SplashScreen(), // Cek sesi login otomatis
     );
   }
 }

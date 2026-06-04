@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/schedule_model.dart';
 import '../services/local_db_service.dart';
+import '../services/notification_service.dart';
 
 class ScheduleProvider with ChangeNotifier {
   List<ScheduleModel> _schedules = [];
@@ -18,21 +19,23 @@ class ScheduleProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void addSchedule(ScheduleModel schedule) {
+  Future<void> addSchedule(ScheduleModel schedule) async {
     if (LocalDbService.currentUser == null) return;
     LocalDbService.addSchedule(schedule);
     _schedules.add(schedule);
+    await NotificationService.scheduleClassReminder(schedule);
     notifyListeners();
   }
 
-  void deleteSchedule(String id) {
+  Future<void> deleteSchedule(String id) async {
     if (LocalDbService.currentUser == null) return;
     LocalDbService.deleteSchedule(id);
     _schedules.removeWhere((s) => s.id == id);
+    await NotificationService.cancelReminder(id);
     notifyListeners();
   }
 
-  void updateSchedule(ScheduleModel schedule) {
+  Future<void> updateSchedule(ScheduleModel schedule) async {
     if (LocalDbService.currentUser == null) return;
     LocalDbService.addSchedule(schedule); // Hive put replaces if key exists
     int index = _schedules.indexWhere((s) => s.id == schedule.id);

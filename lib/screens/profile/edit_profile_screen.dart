@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,6 +21,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _campusController;
   late TextEditingController _semesterController;
   XFile? _image;
+  Uint8List? _webImageBytes; // untuk preview di web
 
   @override
   void initState() {
@@ -40,9 +42,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 800,
+      maxHeight: 800,
+      imageQuality: 85,
+    );
     if (image != null) {
-      setState(() => _image = image);
+      if (kIsWeb) {
+        final bytes = await image.readAsBytes();
+        setState(() {
+          _image = image;
+          _webImageBytes = bytes;
+        });
+      } else {
+        setState(() => _image = image);
+      }
     }
   }
 
@@ -143,13 +158,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child: CircleAvatar(
                         radius: 50,
                         backgroundColor: AppTheme.slateLight,
-                        backgroundImage: _image != null
-                            ? (kIsWeb
-                                ? NetworkImage(_image!.path)
-                                : FileImage(File(_image!.path))) as ImageProvider
-                            : (user?.profilePicture != null 
-                                ? NetworkImage(user!.profilePicture!) 
-                                : null),
+                        backgroundImage: _buildAvatarImage(_image, _webImageBytes, user?.profilePicture),
                         child: (_image == null && user?.profilePicture == null)
                             ? const Icon(Icons.person_rounded, size: 50, color: AppTheme.slateGray)
                             : null,
@@ -199,6 +208,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
       ),
     );
+  }
+
+  /// Membangun ImageProvider yang sesuai platform
+  ImageProvider? _buildAvatarImage(XFile? picked, Uint8List? webBytes, String? savedPath) {
+    if (picked != null) {
+      if (kIsWeb && webBytes != null) {
+        return MemoryImage(webBytes);
+      } else if (!kIsWeb) {
+        return FileImage(File(picked.path));
+      }
+    }
+    // Foto yang sudah tersimpan sebelumnya (path lokal)
+    if (savedPath != null && savedPath.isNotEmpty) {
+      if (kIsWeb) {
+        return NetworkImage(savedPath); // web simpan sebagai URL
+      } else {
+        final f = File(savedPath);
+        if (f.existsSync()) return FileImage(f);
+      }
+    }
+    return null;
   }
 
   Widget _buildTextField(String label, TextEditingController controller, {String? hint, bool isNumber = false}) {
