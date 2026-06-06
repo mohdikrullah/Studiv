@@ -30,7 +30,6 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: _screens[navProvider.currentIndex],
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -42,14 +41,17 @@ class _MainScreenState extends State<MainScreen> {
           ],
         ),
         child: SafeArea(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildNavItem(context, 0, Icons.home_rounded, "Home"),
-              _buildNavItem(context, 1, Icons.calendar_month_rounded, "Jadwal"),
-              _buildNavItem(context, 2, Icons.assignment_rounded, "Tugas"),
-              _buildNavItem(context, 3, Icons.person_rounded, "Profil"),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildNavItem(context, 0, Icons.home_rounded, "Home"),
+                _buildNavItem(context, 1, Icons.calendar_month_rounded, "Jadwal"),
+                _buildNavItem(context, 2, Icons.assignment_rounded, "Tugas"),
+                _buildNavItem(context, 3, Icons.person_rounded, "Profil"),
+              ],
+            ),
           ),
         ),
       ),

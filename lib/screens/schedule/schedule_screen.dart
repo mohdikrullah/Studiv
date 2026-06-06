@@ -19,8 +19,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _days.length, vsync: this);
-    // Load schedules on init
+    final todayIndex = DateTime.now().weekday - 1;
+    _tabController = TabController(
+      length: _days.length,
+      vsync: this,
+      initialIndex: todayIndex,
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ScheduleProvider>().loadSchedules();
     });
@@ -45,17 +49,33 @@ class _ScheduleScreenState extends State<ScheduleScreen> with SingleTickerProvid
             letterSpacing: 1.2,
           ),
         ),
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          tabAlignment: TabAlignment.start,
-          padding: EdgeInsets.zero,
-          labelColor: AppTheme.primaryColor,
-          unselectedLabelColor: AppTheme.slateGray,
-          indicatorColor: AppTheme.primaryColor,
-          indicatorWeight: 3,
-          labelStyle: GoogleFonts.inter(fontWeight: FontWeight.bold),
-          tabs: _days.map((day) => Tab(text: day)).toList(),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            color: Colors.white,
+            child: TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              indicatorSize: TabBarIndicatorSize.label,
+              labelPadding: const EdgeInsets.symmetric(horizontal: 20),
+              labelColor: AppTheme.primaryColor,
+              unselectedLabelColor: AppTheme.slateGray,
+              indicatorColor: AppTheme.primaryColor,
+              indicatorWeight: 3,
+              labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
+              unselectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 12),
+              tabs: const [
+                Tab(text: 'Senin'),
+                Tab(text: 'Selasa'),
+                Tab(text: 'Rabu'),
+                Tab(text: 'Kamis'),
+                Tab(text: 'Jumat'),
+                Tab(text: 'Sabtu'),
+                Tab(text: 'Minggu'),
+              ],
+            ),
+          ),
         ),
       ),
       body: TabBarView(

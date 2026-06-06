@@ -20,7 +20,7 @@ class _TasksScreenState extends State<TasksScreen> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _statuses.length, vsync: this);
+    _tabController = TabController(length: _statuses.length, vsync: this, initialIndex: 0);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TaskProvider>().fetchTasks();
     });
@@ -45,18 +45,23 @@ class _TasksScreenState extends State<TasksScreen> with SingleTickerProviderStat
             letterSpacing: 1.2,
           ),
         ),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: AppTheme.primaryColor,
-          unselectedLabelColor: AppTheme.slateGray,
-          indicatorColor: AppTheme.primaryColor,
-          indicatorWeight: 3,
-          labelStyle: GoogleFonts.inter(fontWeight: FontWeight.bold),
-          tabs: const [
-            Tab(text: 'Belum Mulai'),
-            Tab(text: 'Dikerjakan'),
-            Tab(text: 'Selesai'),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            color: Colors.white,
+            child: TabBar(
+              controller: _tabController,
+              isScrollable: false,
+              tabAlignment: TabAlignment.fill,
+              labelColor: AppTheme.primaryColor,
+              unselectedLabelColor: AppTheme.slateGray,
+              indicatorColor: AppTheme.primaryColor,
+              indicatorWeight: 3,
+              labelStyle: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13),
+              unselectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 13),
+              tabs: _statuses.map((status) => Tab(height: 36, text: _getStatusLabel(status))).toList(),
+            ),
+          ),
         ),
       ),
       body: Consumer<TaskProvider>(
@@ -452,6 +457,15 @@ class _TasksScreenState extends State<TasksScreen> with SingleTickerProviderStat
         ),
       ),
     );
+  }
+
+  String _getStatusLabel(String status) {
+    switch (status) {
+      case 'To-Do': return 'Belum Mulai';
+      case 'In Progress': return 'Dikerjakan';
+      case 'Done': return 'Selesai';
+      default: return status;
+    }
   }
 
   Widget _buildFieldLabel(String label) {

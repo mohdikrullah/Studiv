@@ -37,10 +37,12 @@ class ScheduleProvider with ChangeNotifier {
 
   Future<void> updateSchedule(ScheduleModel schedule) async {
     if (LocalDbService.currentUser == null) return;
-    LocalDbService.addSchedule(schedule); // Hive put replaces if key exists
+    LocalDbService.addSchedule(schedule);
     int index = _schedules.indexWhere((s) => s.id == schedule.id);
     if (index != -1) {
       _schedules[index] = schedule;
+      await NotificationService.cancelReminder(_schedules[index].id);
+      await NotificationService.scheduleClassReminder(schedule);
       notifyListeners();
     }
   }

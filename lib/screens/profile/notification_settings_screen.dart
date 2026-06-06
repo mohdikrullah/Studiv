@@ -39,7 +39,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   Future<void> _pickCustomAudio() async {
     setState(() => _isLoading = true);
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.audio,
       );
 
