@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
 import '../../services/local_db_service.dart';
+import '../../utils/navigation_utils.dart';
 
 class ShareGradesScreen extends StatefulWidget {
   const ShareGradesScreen({super.key});
@@ -26,16 +27,25 @@ class _ShareGradesScreenState extends State<ShareGradesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        title: Text('BAGIKAN NILAI', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.slateDark),
-          onPressed: () => Navigator.pop(context),
+    return PopScope(
+      canPop: Navigator.canPop(context),
+      onPopInvoked: (didPop) {
+        if (!didPop && Navigator.canPop(context)) {
+          Navigator.pop(context);
+        } else if (!didPop) {
+          NavigationUtils.safeBack(context);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppTheme.backgroundColor,
+        appBar: AppBar(
+          title: Text('BAGIKAN NILAI', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+          leading: buildSafeBackButton(
+            context,
+            color: AppTheme.slateDark,
+          ),
         ),
-      ),
-      body: ListView(
+        body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
           Container(
@@ -85,6 +95,7 @@ class _ShareGradesScreenState extends State<ShareGradesScreen> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

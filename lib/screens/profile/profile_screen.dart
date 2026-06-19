@@ -8,6 +8,7 @@ import '../../providers/schedule_provider.dart';
 import '../../providers/task_provider.dart';
 import '../../providers/grade_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/navigation_utils.dart';
 import '../auth/login_screen.dart';
 import 'edit_profile_screen.dart';
 import 'academic_history_screen.dart';
@@ -23,7 +24,17 @@ class ProfileScreen extends StatelessWidget {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user;
 
-    return Scaffold(
+    return PopScope(
+      canPop: Navigator.canPop(context),
+      onPopInvoked: (didPop) {
+        if (!didPop && Navigator.canPop(context)) {
+          Navigator.pop(context);
+        } else if (!didPop) {
+          // Jika tidak bisa pop, stay at current screen
+          // Don't navigate away dari profile tab
+        }
+      },
+      child: Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         title: Text(
@@ -34,9 +45,10 @@ class ProfileScreen extends StatelessWidget {
             letterSpacing: 1.5,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.slateDark),
-          onPressed: () => Navigator.pop(context),
+        leading: buildSafeBackButton(
+          context,
+          color: AppTheme.slateDark,
+          routeName: '/',
         ),
         actions: [
           IconButton(
@@ -237,6 +249,7 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 

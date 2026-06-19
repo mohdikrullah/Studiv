@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
 import '../../services/local_db_service.dart';
+import '../../utils/navigation_utils.dart';
 
 class SmsAuthScreen extends StatefulWidget {
   const SmsAuthScreen({super.key});
@@ -66,16 +67,25 @@ class _SmsAuthScreenState extends State<SmsAuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        title: Text('PESAN TEKS (SMS)', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.slateDark),
-          onPressed: () => Navigator.pop(context),
+    return PopScope(
+      canPop: Navigator.canPop(context),
+      onPopInvoked: (didPop) {
+        if (!didPop && Navigator.canPop(context)) {
+          Navigator.pop(context, false);
+        } else if (!didPop) {
+          NavigationUtils.safeBack(context);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppTheme.backgroundColor,
+        appBar: AppBar(
+          title: Text('AUTENTIKASI SMS', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+          leading: buildSafeBackButton(
+            context,
+            color: AppTheme.slateDark,
+          ),
         ),
-      ),
-      body: ListView(
+        body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
           Icon(Icons.message_rounded, size: 64, color: AppTheme.primaryColor.withOpacity(0.8)),
@@ -135,6 +145,7 @@ class _SmsAuthScreenState extends State<SmsAuthScreen> {
           ],
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

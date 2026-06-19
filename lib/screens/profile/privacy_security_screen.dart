@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/navigation_utils.dart';
 import 'change_password_screen.dart';
 import 'two_factor_auth_screen.dart';
 import 'linked_devices_screen.dart';
@@ -14,8 +15,17 @@ class PrivacySecurityScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+    return PopScope(
+      canPop: Navigator.canPop(context),
+      onPopInvoked: (didPop) {
+        if (!didPop && Navigator.canPop(context)) {
+          Navigator.pop(context);
+        } else if (!didPop) {
+          NavigationUtils.safeBack(context);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         title: Text(
           'PRIVASI & KEAMANAN',
@@ -25,9 +35,9 @@ class PrivacySecurityScreen extends StatelessWidget {
             letterSpacing: 1.2,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.slateDark),
-          onPressed: () => Navigator.pop(context),
+        leading: buildSafeBackButton(
+          context,
+          color: AppTheme.slateDark,
         ),
       ),
       body: SingleChildScrollView(
@@ -87,6 +97,7 @@ class PrivacySecurityScreen extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 

@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/navigation_utils.dart';
 
 class LinkedDevicesScreen extends StatelessWidget {
   const LinkedDevicesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+    return PopScope(
+      canPop: Navigator.canPop(context),
+      onPopInvoked: (didPop) {
+        if (!didPop && Navigator.canPop(context)) {
+          Navigator.pop(context);
+        } else if (!didPop) {
+          NavigationUtils.safeBack(context);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         title: Text('PERANGKAT TERTAUT', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.slateDark),
-          onPressed: () => Navigator.pop(context),
+        leading: buildSafeBackButton(
+          context,
+          color: AppTheme.slateDark,
         ),
       ),
       body: ListView(
@@ -61,6 +71,7 @@ class LinkedDevicesScreen extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

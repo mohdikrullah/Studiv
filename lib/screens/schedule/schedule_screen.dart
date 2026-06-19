@@ -12,9 +12,18 @@ class ScheduleScreen extends StatefulWidget {
   State<ScheduleScreen> createState() => _ScheduleScreenState();
 }
 
-class _ScheduleScreenState extends State<ScheduleScreen> with SingleTickerProviderStateMixin {
+class _ScheduleScreenState extends State<ScheduleScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final List<String> _days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+  final List<String> _days = [
+    'Senin',
+    'Selasa',
+    'Rabu',
+    'Kamis',
+    'Jumat',
+    'Sabtu',
+    'Minggu',
+  ];
 
   @override
   void initState() {
@@ -49,31 +58,30 @@ class _ScheduleScreenState extends State<ScheduleScreen> with SingleTickerProvid
             letterSpacing: 1.2,
           ),
         ),
+        elevation: 0,
+        backgroundColor: Colors.white,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Container(
             color: Colors.white,
-            child: TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
-              indicatorSize: TabBarIndicatorSize.label,
-              labelPadding: const EdgeInsets.symmetric(horizontal: 20),
-              labelColor: AppTheme.primaryColor,
-              unselectedLabelColor: AppTheme.slateGray,
-              indicatorColor: AppTheme.primaryColor,
-              indicatorWeight: 3,
-              labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
-              unselectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 12),
-              tabs: const [
-                Tab(text: 'Senin'),
-                Tab(text: 'Selasa'),
-                Tab(text: 'Rabu'),
-                Tab(text: 'Kamis'),
-                Tab(text: 'Jumat'),
-                Tab(text: 'Sabtu'),
-                Tab(text: 'Minggu'),
-              ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final bool isMobile = constraints.maxWidth < 600;
+
+                return TabBar(
+                  controller: _tabController,
+                  isScrollable: isMobile,
+                  tabAlignment:
+                      isMobile ? TabAlignment.start : TabAlignment.fill,
+                  labelColor: AppTheme.primaryColor,
+                  unselectedLabelColor: AppTheme.slateGray,
+                  indicatorColor: AppTheme.primaryColor,
+                  indicatorWeight: 3,
+                  labelStyle: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13),
+                  unselectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 13),
+                  tabs: _days.map((day) => Tab(height: 36, text: day)).toList(),
+                );
+              },
             ),
           ),
         ),
@@ -93,14 +101,20 @@ class _ScheduleScreenState extends State<ScheduleScreen> with SingleTickerProvid
   Widget _buildScheduleList(String day) {
     return Consumer<ScheduleProvider>(
       builder: (context, provider, child) {
-        final daySchedules = provider.schedules.where((s) => s.day?.trim().toLowerCase() == day.toLowerCase()).toList();
+        final daySchedules = provider.schedules
+            .where((s) => s.day?.trim().toLowerCase() == day.toLowerCase())
+            .toList();
 
         if (daySchedules.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.calendar_today_outlined, size: 64, color: AppTheme.slateGray.withValues(alpha: 0.3)),
+                Icon(
+                  Icons.calendar_today_outlined,
+                  size: 64,
+                  color: AppTheme.slateGray.withValues(alpha: 0.3),
+                ),
                 const SizedBox(height: 16),
                 Text(
                   'Tidak ada jadwal untuk hari $day',
@@ -136,10 +150,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> with SingleTickerProvid
         child: IntrinsicHeight(
           child: Row(
             children: [
-              Container(
-                width: 6,
-                color: AppTheme.primaryColor,
-              ),
+              Container(width: 6, color: AppTheme.primaryColor),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -165,18 +176,32 @@ class _ScheduleScreenState extends State<ScheduleScreen> with SingleTickerProvid
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.access_time_rounded, size: 16, color: AppTheme.slateGray),
+                          Icon(
+                            Icons.access_time_rounded,
+                            size: 16,
+                            color: AppTheme.slateGray,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             schedule.time,
-                            style: GoogleFonts.inter(color: AppTheme.slateGray, fontSize: 13),
+                            style: GoogleFonts.inter(
+                              color: AppTheme.slateGray,
+                              fontSize: 13,
+                            ),
                           ),
                           const SizedBox(width: 16),
-                          Icon(Icons.location_on_outlined, size: 16, color: AppTheme.slateGray),
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 16,
+                            color: AppTheme.slateGray,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             schedule.room,
-                            style: GoogleFonts.inter(color: AppTheme.slateGray, fontSize: 13),
+                            style: GoogleFonts.inter(
+                              color: AppTheme.slateGray,
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),
@@ -184,7 +209,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> with SingleTickerProvid
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            Icon(Icons.person_outline_rounded, size: 16, color: AppTheme.slateGray),
+                            Icon(
+                              Icons.person_outline_rounded,
+                              size: 16,
+                              color: AppTheme.slateGray,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               schedule.lecturer!,
@@ -230,7 +259,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> with SingleTickerProvid
     final nameController = TextEditingController(text: schedule?.subject ?? '');
     final timeController = TextEditingController(text: schedule?.time ?? '');
     final roomController = TextEditingController(text: schedule?.room ?? '');
-    final lecturerController = TextEditingController(text: schedule?.lecturer ?? '');
+    final lecturerController = TextEditingController(
+      text: schedule?.lecturer ?? '',
+    );
     String selectedDay = schedule?.day ?? _days[_tabController.index];
 
     showModalBottomSheet(
@@ -265,7 +296,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> with SingleTickerProvid
               _buildFieldLabel('Mata Kuliah'),
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(hintText: 'Contoh: Algoritma'),
+                decoration: const InputDecoration(
+                  hintText: 'Contoh: Algoritma',
+                ),
               ),
               const SizedBox(height: 16),
               Row(
@@ -277,7 +310,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> with SingleTickerProvid
                         _buildFieldLabel('Waktu'),
                         TextField(
                           controller: timeController,
-                          decoration: const InputDecoration(hintText: '08:00 - 10:00'),
+                          decoration: const InputDecoration(
+                            hintText: '08:00 - 10:00',
+                          ),
                         ),
                       ],
                     ),
@@ -338,11 +373,15 @@ class _ScheduleScreenState extends State<ScheduleScreen> with SingleTickerProvid
                         day: selectedDay,
                         lecturer: lecturerController.text,
                       );
-                      
+
                       if (isEdit) {
-                        context.read<ScheduleProvider>().updateSchedule(newSchedule);
+                        context.read<ScheduleProvider>().updateSchedule(
+                          newSchedule,
+                        );
                       } else {
-                        context.read<ScheduleProvider>().addSchedule(newSchedule);
+                        context.read<ScheduleProvider>().addSchedule(
+                          newSchedule,
+                        );
                       }
                       Navigator.pop(context);
                     }
