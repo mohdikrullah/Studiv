@@ -1,74 +1,88 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
+import '../services/session_service.dart';
 import '../services/local_db_service.dart';
 
 class AuthProvider with ChangeNotifier {
   UserModel? _user;
   bool _isLoading = false;
+  
   final AuthService _authService = AuthService();
+  final SessionService _sessionService = SessionService();
 
   UserModel? get user => _user;
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _user != null;
 
+  /// Attempt auto-login using the saved session
   Future<bool> tryAutoLogin() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey('auth_token') || !prefs.containsKey('logged_in_username')) return false;
+    final sessionUsername = await _sessionService.getSessionUsername();
+    if (sessionUsername == null) return false;
 
-    final username = prefs.getString('logged_in_username')!;
     try {
-      await LocalDbService.initUser(username);
-      _user = await _authService.getProfile();
+      // Retrieve user directly from Hive database
+      final dbUser = _authService.getUserDirectly(sessionUsername);
+      if (dbUser == null) {
+        // User truly does not exist in the database. Clear invalid session.
+        await logout();
+        return false;
+      }
+
+      // Initialize user-specific databases (Schedules, etc.)
+      await LocalDbService.initUser(dbUser.username);
+      _user = dbUser;
       notifyListeners();
       return true;
     } catch (e) {
-      await logout();
+      // Session Recovery: If there is an unexpected error (like database lock or delay),
+      // DO NOT clear the session. Return false so the app shows login page or retries,
+      // but the session data is preserved.
       return false;
     }
   }
 
+  /// Perform login and initialize user session
   Future<void> login(String loginUser, String password) async {
     _isLoading = true;
     notifyListeners();
     try {
       final response = await _authService.login(loginUser, password);
-      final token = response['token'];
-      final userData = response['user'];
+      final token = response['token'] as String;
+      final userData = response['user'] as UserModel;
       
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', token);
-      await prefs.setString('logged_in_username', userData['username']);
+      // Save session separately
+      await _sessionService.saveSession(userData.username);
       
-      await LocalDbService.initUser(userData['username']);
-      _user = UserModel.fromJson(userData);
+      await LocalDbService.initUser(userData.username);
+      _user = userData;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
+  /// Register a new user and login
   Future<void> register(String username, String email, String password) async {
     _isLoading = true;
     notifyListeners();
     try {
       final response = await _authService.register(username, email, password);
-      final token = response['token'];
-      final userData = response['user'];
+      final token = response['token'] as String;
+      final userData = response['user'] as UserModel;
       
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', token);
-      await prefs.setString('logged_in_username', userData['username']);
+      // Save session separately
+      await _sessionService.saveSession(userData.username);
       
-      await LocalDbService.initUser(userData['username']);
-      _user = UserModel.fromJson(userData);
+      await LocalDbService.initUser(userData.username);
+      _user = userData;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
+  /// Fetch user profile from database
   Future<void> fetchProfile() async {
     try {
       _user = await _authService.getProfile();
@@ -78,6 +92,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  /// Update user profile
   Future<void> updateProfile({
     required String fullName,
     required String campus,
@@ -101,15 +116,15 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  /// Logout current user (clears session, leaves account data intact)
   Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('auth_token');
-    await prefs.remove('logged_in_username');
+    await _sessionService.clearSession();
     await LocalDbService.closeUser();
     _user = null;
     notifyListeners();
   }
 
+  /// Verify user combination for password reset
   Future<bool> verifyUserForReset(String username, String email) async {
     _isLoading = true;
     notifyListeners();
@@ -121,6 +136,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  /// Reset user password
   Future<void> resetPassword(String username, String newPassword) async {
     _isLoading = true;
     notifyListeners();

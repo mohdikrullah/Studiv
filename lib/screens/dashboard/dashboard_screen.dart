@@ -10,6 +10,7 @@ import '../../providers/navigation_provider.dart';
 import '../../providers/task_provider.dart';
 import '../../models/task_model.dart';
 import 'package:intl/intl.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -51,7 +52,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final todayDay = _getTodayDayName();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6FF),
+      backgroundColor: AppTheme.backgroundColor,
       appBar: StudivAppBar(
         hasNotif: true,
         onNotifTap: () {
@@ -78,18 +79,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF6C63FF), Color(0xFF9C8FFF)],
+                    colors: [
+                      AppTheme.primaryColor,
+                      AppTheme.primaryLight,
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(28),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF6C63FF).withValues(alpha: 0.4),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
+                  boxShadow: AppTheme.softShadow,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,35 +170,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
               // ═══════════════════════════════════════
               _buildSectionHeader('Jadwal Kuliah Hari Ini', () => navProvider.setIndex(1)),
               const SizedBox(height: 14),
-              SizedBox(
-                height: 160,
-                child: Consumer<ScheduleProvider>(
-                  builder: (context, provider, child) {
-                    final todaySchedules = provider.schedules
-                        .where((s) => s.day?.trim().toLowerCase() == todayDay.toLowerCase())
-                        .toList();
+              Consumer<ScheduleProvider>(
+                builder: (context, provider, child) {
+                  if (provider.isLoading) {
+                    return const SizedBox(
+                      height: 175,
+                      child: ScheduleCardSkeleton(),
+                    );
+                  }
 
-                    if (todaySchedules.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: _buildEmptyState(
-                          Icons.event_available_rounded,
-                          'Tidak ada jadwal hari ini',
-                          'Tambah di menu Jadwal 📅',
-                          onTap: () => navProvider.setIndex(1),
-                        ),
+                  final todaySchedules = provider.schedules
+                      .where((s) => s.day?.trim().toLowerCase() == todayDay.toLowerCase())
+                      .toList();
+
+                  if (todaySchedules.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _buildEmptyState(
+                        Icons.event_available_rounded,
+                        'Tidak ada jadwal hari ini',
+                        'Tambah di menu Jadwal 📅',
+                        onTap: () => navProvider.setIndex(1),
+                      ),
+                    );
+                  }
+
+                  final List<Widget> rows = [];
+                  int startIndex = 0;
+                  
+                  // Jika ganjil, item pertama full-width
+                  if (todaySchedules.length % 2 != 0) {
+                    rows.add(_buildScheduleCard(todaySchedules[0]));
+                    startIndex = 1;
+                  }
+                  
+                  // Sisanya dipasang berdampingan (2 per baris)
+                  for (int i = startIndex; i < todaySchedules.length; i += 2) {
+                    if (i > 0) {
+                      rows.add(const SizedBox(height: 12));
+                    }
+                    
+                    if (i + 1 < todaySchedules.length) {
+                      rows.add(
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: _buildScheduleCard(todaySchedules[i])),
+                            const SizedBox(width: 12),
+                            Expanded(child: _buildScheduleCard(todaySchedules[i+1])),
+                          ],
+                        )
                       );
                     }
+                  }
 
-                    return ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.only(left: 16),
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: todaySchedules.length,
-                      itemBuilder: (context, index) => _buildScheduleCard(todaySchedules[index]),
-                    );
-                  },
-                ),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: rows,
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 28),
@@ -298,7 +328,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   },
                 ),
               ),
+              const SizedBox(height: 28),
 
+              _buildSectionHeader('Motivasi Hari Ini', null),
+
+              const SizedBox(height: 14),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _buildMotivationCard(),
+              ),
               const SizedBox(height: 40),
             ],
           ),
@@ -314,29 +353,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildStatPill(IconData icon, String value, String label) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.18),
-          borderRadius: BorderRadius.circular(16),
+          color: Colors.white.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.2),
+            width: 1,
+          ),
         ),
-        child: Row(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.white, size: 20),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(value,
-                    style: GoogleFonts.outfit(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white)),
-                Text(label,
-                    style: GoogleFonts.inter(
-                        fontSize: 10,
-                        color: Colors.white.withValues(alpha: 0.8),
-                        height: 1.3)),
-              ],
+            Icon(icon, color: Colors.white, size: 24),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: GoogleFonts.outfit(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                height: 1.2,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withValues(alpha: 0.9),
+                height: 1.2,
+              ),
             ),
           ],
         ),
@@ -387,7 +436,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.cardColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: accentColor.withValues(alpha: 0.15)),
           boxShadow: AppTheme.softShadow,
@@ -423,141 +472,298 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _buildScheduleStatusBadge(String timeStr) {
+    String status = 'Akan Dimulai';
+    Color color = AppTheme.slateGray;
+    Color bgColor = AppTheme.slateGray.withValues(alpha: 0.1);
+
+    if (timeStr.isNotEmpty) {
+      try {
+        final parts = timeStr.split('-');
+        final startPart = parts[0].trim();
+        final endPart = parts.length > 1 ? parts[1].trim() : '';
+
+        final now = DateTime.now();
+        DateTime? startTime;
+        DateTime? endTime;
+
+        if (startPart.contains(':')) {
+          final startSplit = startPart.split(':');
+          startTime = DateTime(now.year, now.month, now.day, int.parse(startSplit[0]), int.parse(startSplit[1]));
+        }
+        if (endPart.contains(':')) {
+          final endSplit = endPart.split(':');
+          endTime = DateTime(now.year, now.month, now.day, int.parse(endSplit[0]), int.parse(endSplit[1]));
+        }
+
+        if (startTime != null) {
+          if (now.isBefore(startTime)) {
+            status = 'Akan Dimulai';
+            color = AppTheme.slateGray;
+            bgColor = AppTheme.slateGray.withValues(alpha: 0.1);
+          } else {
+            final effectiveEndTime = endTime ?? startTime.add(const Duration(hours: 2));
+            if (now.isAfter(effectiveEndTime)) {
+              status = 'Selesai';
+              color = Colors.green;
+              bgColor = Colors.green.withValues(alpha: 0.1);
+            } else {
+              status = 'Sedang Berlangsung';
+              color = AppTheme.primaryColor;
+              bgColor = AppTheme.primaryColor.withValues(alpha: 0.1);
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        status,
+        style: GoogleFonts.inter(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: color,
+        ),
+      ),
+    );
+  }
+
   Widget _buildScheduleCard(ScheduleModel schedule) {
     return Container(
-      width: 180,
-      margin: const EdgeInsets.only(right: 14),
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        color: AppTheme.cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.slateGray.withValues(alpha: 0.1)),
         boxShadow: AppTheme.softShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF6C63FF), Color(0xFF9C8FFF)],
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            alignment: WrapAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.schedule_rounded,
+                      color: AppTheme.primaryColor,
+                      size: 14,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      schedule.time.isNotEmpty ? schedule.time : '--:--',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              schedule.time.isNotEmpty ? schedule.time : '—',
-              style: GoogleFonts.inter(
-                  fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
+              _buildScheduleStatusBadge(schedule.time),
+            ],
           ),
-          const Spacer(),
+          const SizedBox(height: 16),
           Text(
             schedule.subject,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: GoogleFonts.inter(
-                fontSize: 15,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.slateDark),
+                height: 1.2,
+                color: Theme.of(context).brightness == Brightness.dark 
+                    ? Colors.white 
+                    : AppTheme.slateDark),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(Icons.location_on_outlined,
-                  size: 13, color: AppTheme.slateGray),
-              const SizedBox(width: 3),
+              Icon(Icons.location_on_rounded,
+                  size: 14, color: AppTheme.slateGray),
+              const SizedBox(width: 4),
               Expanded(
                 child: Text(
                   schedule.room.isNotEmpty ? schedule.room : 'Ruang —',
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.inter(
-                      fontSize: 11, color: AppTheme.slateGray),
+                      fontSize: 12, color: AppTheme.slateGray),
                 ),
               ),
             ],
           ),
+          if (schedule.lecturer != null && schedule.lecturer!.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(Icons.person_rounded,
+                    size: 14, color: AppTheme.slateGray),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    schedule.lecturer!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                        fontSize: 12, color: AppTheme.slateGray),
+                  ),
+                ),
+              ],
+            ),
+          ]
         ],
       ),
     );
   }
 
+  // Helper: Hitung sisa waktu dalam jam hingga deadline
+  // Negatif = sudah terlambat
+  double _hoursUntilDeadline(DateTime? dueDate) {
+    if (dueDate == null) return double.infinity;
+    return dueDate.difference(DateTime.now()).inMinutes / 60.0;
+  }
+
+  // Helper: Dapatkan badge teks berdasarkan sisa jam
+  String _getDeadlineBadgeFromHours(double hours) {
+    if (hours < 0) return 'Terlambat';
+    if (hours < 24) return 'Hari Ini';
+    if (hours < 48) return 'Besok';
+    final days = hours ~/ 24;
+    return '$days Hari Lagi';
+  }
+
+  // Helper: Dapatkan warna berdasarkan sisa jam
+  // < 0: Merah (terlambat), < 24 jam: Merah, H-1 (24-48 jam): Kuning, lainnya: Primary
+  Color _getDeadlineAccentColor(double hours) {
+    if (hours < 0) return Colors.red;        // Terlambat
+    if (hours < 24) return Colors.red;       // Kurang dari 24 jam → MERAH
+    if (hours < 48) return const Color(0xFFEAB308); // H-1 (24-48 jam) → KUNING
+    return AppTheme.primaryColor;            // H-2+ → Primary (ungu app)
+  }
+
+  Color _getDeadlineBgColor(double hours) {
+    return _getDeadlineAccentColor(hours).withValues(alpha: 0.06);
+  }
+
   Widget _buildUrgentTaskCard(
       TaskModel task, DateFormat formatter, DateFormat timeFormatter) {
-    String deadline = 'Tanpa Deadline';
-    Color accentColor = AppTheme.slateGray;
-    Color bgColor = const Color(0xFFF5F5F5);
-
-    if (task.dueDate != null) {
-      final now = DateTime.now();
-      final diff = task.dueDate!.difference(now).inDays;
-      if (diff < 0) {
-        deadline = 'Terlambat! ${formatter.format(task.dueDate!)}';
-        accentColor = Colors.red;
-        bgColor = const Color(0xFFFFEEEE);
-      } else if (diff == 0) {
-        deadline = 'Hari ini, ${timeFormatter.format(task.dueDate!)}';
-        accentColor = Colors.red;
-        bgColor = const Color(0xFFFFEFEF);
-      } else if (diff == 1) {
-        deadline = 'Besok, ${timeFormatter.format(task.dueDate!)}';
-        accentColor = Colors.orange;
-        bgColor = const Color(0xFFFFF6EE);
-      } else {
-        deadline = formatter.format(task.dueDate!);
-        accentColor = AppTheme.primaryColor;
-        bgColor = const Color(0xFFEEF0FF);
-      }
-    }
+    final hours = _hoursUntilDeadline(task.dueDate);
+    final accentColor = _getDeadlineAccentColor(hours);
+    final bgColor = _getDeadlineBgColor(hours);
+    final badgeText = task.dueDate == null ? 'Tidak Ada' : _getDeadlineBadgeFromHours(hours);
 
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: accentColor.withValues(alpha: 0.2)),
+        boxShadow: badgeText == "Terlambat" || badgeText == "Hari Ini" 
+            ? AppTheme.softShadow 
+            : null, // Beri shadow jika urgent
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: accentColor.withValues(alpha: 0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                )
-              ],
+              color: accentColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(Icons.warning_amber_rounded, color: accentColor, size: 22),
+            child: Icon(
+              badgeText == "Terlambat" ? Icons.warning_rounded : Icons.assignment_rounded, 
+              color: accentColor, 
+              size: 28
+            ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  task.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.slateDark),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        task.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          height: 1.2,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : const Color(0xFF1E293B),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: accentColor,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: accentColor.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          )
+                        ],
+                      ),
+                      child: Text(
+                        badgeText,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 12),
                 Row(
                   children: [
-                    Icon(Icons.schedule_rounded, size: 12, color: accentColor),
-                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.schedule_rounded,
+                      size: 14,
+                      color: accentColor.withValues(alpha: 0.8),
+                    ),
+                    const SizedBox(width: 6),
                     Text(
-                      deadline,
+                      task.dueDate == null
+                        ? "Tanpa Deadline"
+                        : "${formatter.format(task.dueDate!)} • ${timeFormatter.format(task.dueDate!)}",
                       style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: accentColor),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: accentColor.withValues(alpha: 0.8),
+                      ),
                     ),
                   ],
                 ),
@@ -568,35 +774,62 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+  String _getDeadlineBadge(DateTime? dueDate) {
+    if (dueDate == null) return "Tidak Ada";
+    final hours = _hoursUntilDeadline(dueDate);
+    return _getDeadlineBadgeFromHours(hours);
+  }
 
   Widget _buildSmallTaskCard(
       TaskModel task, DateFormat formatter, Color bgColor, Color accentColor) {
+    final hours = _hoursUntilDeadline(task.dueDate);
+    final Color finalAccent = task.dueDate == null ? AppTheme.slateGray : _getDeadlineAccentColor(hours);
+    final Color finalBg = task.dueDate == null ? AppTheme.cardColor : _getDeadlineBgColor(hours);
+    final badgeText = task.dueDate == null ? 'Tidak Ada' : _getDeadlineBadgeFromHours(hours);
+
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: accentColor.withValues(alpha: 0.15)),
+        color: AppTheme.cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: finalAccent.withValues(alpha: 0.15)),
+        boxShadow: AppTheme.softShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.assignment_outlined, size: 18, color: accentColor),
-          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: finalBg,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(Icons.assignment_outlined, size: 16, color: finalAccent),
+              ),
+              if (badgeText != "Tidak Ada")
+                Text(
+                  badgeText,
+                  style: GoogleFonts.inter(
+                      fontSize: 10, fontWeight: FontWeight.bold, color: finalAccent),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
           Text(
             task.title,
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.slateDark),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            task.dueDate != null ? formatter.format(task.dueDate!) : 'No Date',
-            style: GoogleFonts.inter(
-                fontSize: 11, fontWeight: FontWeight.w600, color: accentColor),
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              height: 1.2,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : AppTheme.slateDark,
+            ),
           ),
         ],
       ),
@@ -605,24 +838,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildProgressCard(double progress, int completed, int total) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        color: AppTheme.cardColor,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.slateGray.withValues(alpha: 0.1)),
         boxShadow: AppTheme.softShadow,
       ),
       child: Row(
         children: [
-          // Circular Progress
           SizedBox(
-            width: 72,
-            height: 72,
+            width: 76,
+            height: 76,
             child: Stack(
               fit: StackFit.expand,
               children: [
                 CircularProgressIndicator(
                   value: progress,
-                  strokeWidth: 7,
+                  strokeWidth: 8,
                   backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
                   valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                   strokeCap: StrokeCap.round,
@@ -631,46 +864,115 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Text(
                     '${(progress * 100).toInt()}%',
                     style: GoogleFonts.outfit(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryColor),
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primaryColor,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 20),
+          const SizedBox(width: 24),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Tingkat Penyelesaian',
-                    style: GoogleFonts.outfit(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.slateDark)),
+                Text(
+                  'Tingkat Penyelesaian',
+                  style: GoogleFonts.outfit(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : AppTheme.slateDark,
+                  ),
+                ),
                 const SizedBox(height: 6),
                 Text(
                   total == 0
                       ? 'Belum ada tugas ditambahkan'
                       : '$completed dari $total tugas selesai',
                   style: GoogleFonts.inter(
-                      fontSize: 13, color: AppTheme.slateGray),
+                    fontSize: 13,
+                    color: AppTheme.slateGray,
+                  ),
                 ),
                 if (total > 0) ...[
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 14),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: LinearProgressIndicator(
                       value: progress,
                       minHeight: 6,
-                      backgroundColor:
-                          AppTheme.primaryColor.withValues(alpha: 0.1),
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                          AppTheme.primaryColor),
+                      backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                     ),
                   ),
                 ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMotivationCard() {
+    final quotes = [
+      "Sedikit demi sedikit, lama-lama menjadi pintar.",
+      "Belajar hari ini adalah investasi untuk masa depan.",
+      "Jangan menunggu semangat datang, mulailah maka semangat akan mengikuti.",
+      "Tugas yang selesai lebih baik daripada tugas yang sempurna tetapi tidak selesai.",
+      "Konsisten adalah kunci keberhasilan."
+    ];
+
+    final quote = quotes[DateTime.now().day % quotes.length];
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.15)),
+        boxShadow: AppTheme.softShadow,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Text("💡", style: TextStyle(fontSize: 20)),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Motivasi Hari Ini",
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  quote,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    height: 1.5,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white.withValues(alpha: 0.9)
+                        : AppTheme.slateDark,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
               ],
             ),
           ),

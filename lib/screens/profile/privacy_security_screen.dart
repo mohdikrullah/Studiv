@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/navigation_utils.dart';
+import '../../providers/theme_provider.dart';
 import 'change_password_screen.dart';
 import 'two_factor_auth_screen.dart';
 import 'linked_devices_screen.dart';
@@ -15,6 +17,8 @@ class PrivacySecurityScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return PopScope(
       canPop: Navigator.canPop(context),
       onPopInvoked: (didPop) {
@@ -26,78 +30,89 @@ class PrivacySecurityScreen extends StatelessWidget {
       },
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        title: Text(
-          'PRIVASI & KEAMANAN',
-          style: GoogleFonts.outfit(
-            color: AppTheme.primaryColor,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
+        appBar: AppBar(
+          title: Text(
+            'PRIVASI & KEAMANAN',
+            style: GoogleFonts.outfit(
+              color: AppTheme.primaryColor,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
+          ),
+          leading: buildSafeBackButton(context, color: AppTheme.slateDark),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ─── Tampilan ───
+              _buildSectionTitle('Tampilan'),
+              const SizedBox(height: 16),
+              _buildToggleTile(
+                context,
+                title: 'Mode Gelap',
+                subtitle: 'Aktifkan tema gelap yang lebih nyaman di malam hari',
+                icon: Icons.dark_mode_outlined,
+                value: themeProvider.isDark,
+                onChanged: (val) => themeProvider.setDarkMode(val),
+              ),
+              const SizedBox(height: 32),
+
+              // ─── Keamanan Akun ───
+              _buildSectionTitle('Keamanan Akun'),
+              const SizedBox(height: 16),
+              _buildMenuTile(
+                'Ubah Password',
+                'Perbarui password akun Anda',
+                Icons.lock_reset_rounded,
+                () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChangePasswordScreen())),
+              ),
+              _buildMenuTile(
+                'Otentikasi Dua Faktor',
+                'Amankan akun dengan verifikasi tambahan',
+                Icons.verified_user_outlined,
+                () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TwoFactorAuthScreen())),
+              ),
+              _buildMenuTile(
+                'Pengaturan Nada Alarm',
+                'Atur nada untuk pengingat jadwal kuliah',
+                Icons.notifications_active_outlined,
+                () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationSettingsScreen())),
+              ),
+              _buildMenuTile(
+                'Perangkat Tertaut',
+                'Lihat di mana saja Anda login',
+                Icons.devices_rounded,
+                () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LinkedDevicesScreen())),
+              ),
+
+              const SizedBox(height: 32),
+              _buildSectionTitle('Privasi Data'),
+              const SizedBox(height: 16),
+              _buildMenuTile(
+                'Visibilitas Profil',
+                'Atur siapa saja yang bisa melihat profil Anda',
+                Icons.visibility_outlined,
+                () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileVisibilityScreen())),
+              ),
+              _buildMenuTile(
+                'Bagikan Nilai',
+                'Izinkan teman melihat pencapaian akademik',
+                Icons.share_outlined,
+                () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ShareGradesScreen())),
+              ),
+              _buildMenuTile(
+                'Hapus Akun',
+                'Hapus permanen data dan akun Studiv',
+                Icons.delete_outline_rounded,
+                () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DeleteAccountScreen())),
+                isDestructive: true,
+              ),
+            ],
           ),
         ),
-        leading: buildSafeBackButton(
-          context,
-          color: AppTheme.slateDark,
-        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionTitle('Keamanan Akun'),
-            const SizedBox(height: 16),
-            _buildMenuTile(
-              'Ubah Password',
-              'Perbarui password akun Anda',
-              Icons.lock_reset_rounded,
-              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChangePasswordScreen())),
-            ),
-            _buildMenuTile(
-              'Otentikasi Dua Faktor',
-              'Amankan akun dengan verifikasi tambahan',
-              Icons.verified_user_outlined,
-              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TwoFactorAuthScreen())),
-            ),
-            _buildMenuTile(
-              'Pengaturan Nada Alarm',
-              'Atur nada untuk pengingat jadwal kuliah',
-              Icons.notifications_active_outlined,
-              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationSettingsScreen())),
-            ),
-            _buildMenuTile(
-              'Perangkat Tertaut',
-              'Lihat di mana saja Anda login',
-              Icons.devices_rounded,
-              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LinkedDevicesScreen())),
-            ),
-            
-            const SizedBox(height: 32),
-            _buildSectionTitle('Privasi Data'),
-            const SizedBox(height: 16),
-            _buildMenuTile(
-              'Visibilitas Profil',
-              'Atur siapa saja yang bisa melihat profil Anda',
-              Icons.visibility_outlined,
-              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileVisibilityScreen())),
-            ),
-            _buildMenuTile(
-              'Bagikan Nilai',
-              'Izinkan teman melihat pencapaian akademik',
-              Icons.share_outlined,
-              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ShareGradesScreen())),
-            ),
-            _buildMenuTile(
-              'Hapus Akun',
-              'Hapus permanen data dan akun Studiv',
-              Icons.delete_outline_rounded,
-              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DeleteAccountScreen())),
-              isDestructive: true,
-            ),
-          ],
-        ),
-      ),
-    ),
     );
   }
 
@@ -113,11 +128,58 @@ class PrivacySecurityScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuTile(String title, String subtitle, IconData icon, VoidCallback onTap, {bool isDestructive = false}) {
+  Widget _buildToggleTile(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: AppTheme.softShadow,
+      ),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppTheme.primaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: AppTheme.primaryColor, size: 20),
+        ),
+        title: Text(
+          title,
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.slateDark),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: GoogleFonts.inter(fontSize: 11, color: AppTheme.slateGray),
+        ),
+        trailing: Switch(
+          value: value,
+          onChanged: onChanged,
+          activeColor: AppTheme.primaryColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuTile(
+    String title,
+    String subtitle,
+    IconData icon,
+    VoidCallback onTap, {
+    bool isDestructive = false,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: AppTheme.softShadow,
       ),
@@ -134,8 +196,8 @@ class PrivacySecurityScreen extends StatelessWidget {
         title: Text(
           title,
           style: GoogleFonts.inter(
-            fontWeight: FontWeight.bold, 
-            fontSize: 14, 
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
             color: isDestructive ? Colors.redAccent : AppTheme.slateDark,
           ),
         ),
@@ -143,7 +205,7 @@ class PrivacySecurityScreen extends StatelessWidget {
           subtitle,
           style: GoogleFonts.inter(fontSize: 11, color: AppTheme.slateGray),
         ),
-        trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.slateGray, size: 20),
+        trailing: Icon(Icons.chevron_right_rounded, color: AppTheme.slateGray, size: 20),
       ),
     );
   }

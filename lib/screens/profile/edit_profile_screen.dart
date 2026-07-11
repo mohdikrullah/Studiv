@@ -170,7 +170,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         backgroundColor: AppTheme.slateLight,
                         backgroundImage: _buildAvatarImage(_image, _webImageBytes, user?.profilePicture),
                         child: (_image == null && user?.profilePicture == null)
-                            ? const Icon(Icons.person_rounded, size: 50, color: AppTheme.slateGray)
+                            ? Icon(Icons.person_rounded, size: 50, color: AppTheme.slateGray)
                             : null,
                       ),
                     ),

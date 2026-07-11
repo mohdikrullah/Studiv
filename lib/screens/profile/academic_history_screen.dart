@@ -6,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/grade_provider.dart';
 import '../../utils/navigation_utils.dart';
 import 'semester_detail_screen.dart';
+import 'gpa_simulator_screen.dart';
 
 class AcademicHistoryScreen extends StatelessWidget {
   const AcademicHistoryScreen({super.key});
@@ -113,15 +114,32 @@ class AcademicHistoryScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 32),
-            Text(
-              'Detail Semester',
-              style: GoogleFonts.inter(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.slateDark,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Detail Semester',
+                  style: GoogleFonts.inter(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.slateDark,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const GpaSimulatorScreen()),
+                  ),
+                  icon: const Icon(Icons.science_outlined, size: 18),
+                  label: Text('Simulator IPK', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 12)),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppTheme.primaryColor,
+                    backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
             const SizedBox(height: 16),
             ...List.generate(currentSemester, (index) {
               final semesterNum = currentSemester - index;
@@ -173,7 +191,7 @@ class AcademicHistoryScreen extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppTheme.cardColor,
               borderRadius: BorderRadius.circular(16),
               border: isCurrent ? Border.all(color: AppTheme.primaryColor.withOpacity(0.3), width: 1) : null,
               boxShadow: AppTheme.softShadow,
@@ -222,7 +240,7 @@ class AcademicHistoryScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.chevron_right_rounded, color: AppTheme.slateGray),
+                Icon(Icons.chevron_right_rounded, color: AppTheme.slateGray),
               ],
             ),
           ),

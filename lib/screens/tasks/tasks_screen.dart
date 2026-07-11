@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../providers/task_provider.dart';
 import '../../models/task_model.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({Key? key}) : super(key: key);
@@ -48,7 +49,7 @@ class _TasksScreenState extends State<TasksScreen> with SingleTickerProviderStat
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Container(
-            color: Colors.white,
+            color: AppTheme.cardColor,
             child: TabBar(
               controller: _tabController,
               isScrollable: false,
@@ -67,7 +68,7 @@ class _TasksScreenState extends State<TasksScreen> with SingleTickerProviderStat
       body: Consumer<TaskProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const TaskCardSkeleton(count: 5);
           }
 
           return TabBarView(
@@ -92,15 +93,31 @@ class _TasksScreenState extends State<TasksScreen> with SingleTickerProviderStat
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              status == 'Done' ? Icons.task_alt_rounded : Icons.assignment_outlined,
-              size: 64,
-              color: AppTheme.slateGray.withValues(alpha: 0.3),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                status == 'Done' ? Icons.task_alt_rounded : Icons.assignment_outlined,
+                size: 56,
+                color: AppTheme.primaryColor.withValues(alpha: 0.5),
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             Text(
-              'Tidak ada tugas di kategori ini',
-              style: GoogleFonts.inter(color: AppTheme.slateGray),
+              'Belum ada tugas',
+              style: GoogleFonts.outfit(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.slateDark,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Tekan tombol + di bawah untuk menambah tugas',
+              style: GoogleFonts.inter(color: AppTheme.slateGray, fontSize: 13),
             ),
           ],
         ),
@@ -121,8 +138,9 @@ class _TasksScreenState extends State<TasksScreen> with SingleTickerProviderStat
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: AppTheme.cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.slateGray.withValues(alpha: 0.1)),
         boxShadow: AppTheme.softShadow,
       ),
       child: ListTile(
@@ -186,17 +204,17 @@ class _TasksScreenState extends State<TasksScreen> with SingleTickerProviderStat
               ),
             if (task.dueDate != null)
               Padding(
-                padding: const EdgeInsets.only(top: 4.0),
+                padding: const EdgeInsets.only(top: 8.0),
                 child: Row(
                   children: [
-                    Icon(Icons.calendar_today_rounded, size: 12, color: AppTheme.primaryColor),
-                    const SizedBox(width: 4),
+                    _getDeadlineBadge(task.dueDate),
+                    const SizedBox(width: 8),
                     Text(
                       DateFormat('dd MMM yyyy').format(task.dueDate!),
                       style: GoogleFonts.inter(
                         fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.primaryColor,
+                        color: AppTheme.slateGray,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -247,6 +265,51 @@ class _TasksScreenState extends State<TasksScreen> with SingleTickerProviderStat
         const PopupMenuItem(value: 'edit', child: Text('Edit')),
         const PopupMenuItem(value: 'delete', child: Text('Hapus')),
       ],
+    );
+  }
+
+  Widget _getDeadlineBadge(DateTime? dueDate) {
+    if (dueDate == null) return const SizedBox.shrink();
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final due = DateTime(dueDate.year, dueDate.month, dueDate.day);
+    final difference = due.difference(today).inDays;
+
+    String text;
+    Color bgColor;
+    Color textColor = Colors.white;
+
+    if (difference < 0) {
+      text = 'Terlambat';
+      bgColor = Colors.red;
+    } else if (difference == 0) {
+      text = 'Hari Ini';
+      bgColor = Colors.orange;
+    } else if (difference == 1) {
+      text = 'Besok';
+      bgColor = Colors.orange;
+      textColor = Colors.white;
+    } else {
+      text = '$difference Hari Lagi';
+      bgColor = AppTheme.primaryColor.withValues(alpha: 0.1);
+      textColor = AppTheme.primaryColor;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.inter(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: textColor,
+        ),
+      ),
     );
   }
 
@@ -322,7 +385,7 @@ class _TasksScreenState extends State<TasksScreen> with SingleTickerProviderStat
                       builder: (context, child) {
                         return Theme(
                           data: Theme.of(context).copyWith(
-                            colorScheme: const ColorScheme.light(
+                            colorScheme: ColorScheme.light(
                               primary: AppTheme.primaryColor,
                               onPrimary: Colors.white,
                               onSurface: AppTheme.slateDark,

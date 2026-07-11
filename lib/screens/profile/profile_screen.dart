@@ -91,7 +91,7 @@ class ProfileScreen extends StatelessWidget {
                       backgroundColor: AppTheme.slateLight,
                       backgroundImage: _buildProfileImage(user?.profilePicture),
                       child: user?.profilePicture == null 
-                        ? const Icon(Icons.person_rounded, size: 50, color: AppTheme.slateGray) 
+                        ? Icon(Icons.person_rounded, size: 50, color: AppTheme.slateGray) 
                         : null,
                     ),
                   ),
@@ -316,7 +316,7 @@ class ProfileScreen extends StatelessWidget {
               color: AppTheme.slateDark,
             ),
           ),
-          trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.slateGray, size: 20),
+          trailing: Icon(Icons.chevron_right_rounded, color: AppTheme.slateGray, size: 20),
           onTap: () {
             Widget screen;
             switch (title) {

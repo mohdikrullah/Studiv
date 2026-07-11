@@ -112,7 +112,7 @@ class _TwoFactorAuthScreenState extends State<TwoFactorAuthScreen> {
                     _isSmsEnabled ? 'Aktif ke nomor $_smsPhoneNumber' : 'Kirim kode login ke nomor HP Anda', 
                     style: GoogleFonts.inter(fontSize: 12, color: _isSmsEnabled ? Colors.green : AppTheme.slateGray)
                   ),
-                  trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.slateGray),
+                  trailing: Icon(Icons.chevron_right_rounded, color: AppTheme.slateGray),
                   onTap: () async {
                     final result = await Navigator.push(
                       context, 

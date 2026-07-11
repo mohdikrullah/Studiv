@@ -108,7 +108,7 @@ class _SmsAuthScreenState extends State<SmsAuthScreen> {
             decoration: InputDecoration(
               labelText: 'Nomor Handphone',
               hintText: 'Contoh: 081234567890',
-              prefixIcon: const Icon(Icons.phone_rounded, color: AppTheme.slateGray),
+              prefixIcon: Icon(Icons.phone_rounded, color: AppTheme.slateGray),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppTheme.primaryColor, width: 2)),
             ),

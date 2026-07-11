@@ -11,6 +11,21 @@ class TaskProvider with ChangeNotifier {
 
   int get completedTasksCount => _tasks.where((t) => t.status == 'Done').length;
   int get totalTasksCount => _tasks.length;
+  
+  List<TaskModel> get todayDeadlines {
+  final now = DateTime.now();
+
+  return _tasks.where((task) {
+    if (task.dueDate == null) return false;
+    if (task.status == 'Done') return false;
+
+    final due = task.dueDate!;
+
+    return due.year == now.year &&
+        due.month == now.month &&
+        due.day == now.day;
+  }).toList();
+}
 
   void clearData() {
     _tasks = [];
@@ -19,9 +34,12 @@ class TaskProvider with ChangeNotifier {
 
   Future<void> fetchTasks() async {
     if (LocalDbService.currentUser == null) return;
-    
+
     _isLoading = true;
     notifyListeners();
+
+    // Short delay so shimmer skeleton renders at least one frame
+    await Future.delayed(const Duration(milliseconds: 600));
 
     final data = LocalDbService.getData('tasks');
     if (data != null) {

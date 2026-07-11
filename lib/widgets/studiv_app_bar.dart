@@ -92,7 +92,7 @@ class _NotifButton extends StatelessWidget {
                   width: 40,
                   height: 40,
                   alignment: Alignment.center,
-                  child: const Icon(
+                  child: Icon(
                     Icons.notifications_outlined,
                     color: AppTheme.slateDark,
                     size: 24,

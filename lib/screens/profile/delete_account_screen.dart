@@ -85,7 +85,7 @@ class DeleteAccountScreen extends StatelessWidget {
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(ctx),
-                          child: const Text('Batal', style: TextStyle(color: AppTheme.slateGray)),
+                          child: Text('Batal', style: TextStyle(color: AppTheme.slateGray)),
                         ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.red),

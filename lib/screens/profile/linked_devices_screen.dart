@@ -58,7 +58,7 @@ class LinkedDevicesScreen extends StatelessWidget {
               boxShadow: AppTheme.softShadow,
             ),
             child: ListTile(
-              leading: const Icon(Icons.computer_rounded, color: AppTheme.slateGray, size: 32),
+              leading: Icon(Icons.computer_rounded, color: AppTheme.slateGray, size: 32),
               title: Text('Windows PC', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
               subtitle: Text('Terakhir aktif: Kemarin • Bandung, Indonesia', style: GoogleFonts.inter(color: AppTheme.slateGray, fontSize: 12)),
               trailing: IconButton(
